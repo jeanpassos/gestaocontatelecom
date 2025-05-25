@@ -19,6 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Usuário não encontrado');
     }
+    if (!user.active) { // Adicionar esta verificação
+      throw new UnauthorizedException('Usuário inativo');
+    }
     
     // Não incluir a senha no objeto retornado
     const { password, ...result } = user;

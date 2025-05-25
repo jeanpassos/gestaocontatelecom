@@ -6,6 +6,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { UsersModule } from './users/users.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { AuthModule } from './auth/auth.module';
+import { SegmentsModule } from './segments/segments.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { AuthModule } from './auth/auth.module';
     CompaniesModule,
     UsersModule,
     InvoicesModule,
-    AuthModule
+    AuthModule,
+    SegmentsModule
   ],
   controllers: [AppController],
   providers: [AppService],

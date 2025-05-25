@@ -1,6 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import { Company } from './entities/company.entity';
 import { validateCNPJ } from '../utils/validators';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -10,15 +12,38 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 export class CompaniesService {
   constructor(
     @InjectRepository(Company)
-    private companiesRepository: Repository<Company>
+    private companiesRepository: Repository<Company>,
+    private readonly httpService: HttpService,
   ) {}
+
+  async fetchCNPJData(cnpj: string): Promise<any> {
+    const cleanedCNPJ = cnpj.replace(/[^\d]/g, '');
+    if (cleanedCNPJ.length !== 14) {
+      throw new BadRequestException('CNPJ inválido. Deve conter 14 dígitos.');
+    }
+    const url = 'https://receitaws.com.br/v1/cnpj/' + cleanedCNPJ;
+    try {
+      const response = await firstValueFrom(this.httpService.get(url));
+      if (response.data.status === 'ERROR') {
+        throw new NotFoundException('CNPJ não encontrado ou dados inválidos: ' + response.data.message);
+      }
+      return response.data;
+    } catch (error) {
+      // console.error('Erro ao consultar CNPJ ' + cleanedCNPJ + ' na ReceitaWS:', error.response?.data || error.message);
+      // Simplificando o log de erro para evitar problemas com template string aqui também, se houver
+      console.error('Erro ao consultar CNPJ na ReceitaWS:', error.message);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Erro ao consultar dados do CNPJ na API externa.');
+    }
+  }
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     if (!validateCNPJ(createCompanyDto.cnpj)) {
       throw new BadRequestException('CNPJ inválido');
     }
     
-    // Verificar se já existe empresa com mesmo CNPJ
     const existingCompany = await this.companiesRepository.findOne({ 
       where: { cnpj: createCompanyDto.cnpj } 
     });
@@ -42,17 +67,15 @@ export class CompaniesService {
     });
     
     if (!company) {
-      throw new NotFoundException(`Empresa com ID ${id} não encontrada`);
+      throw new NotFoundException('Empresa com ID ' + id + ' não encontrada');
     }
     
     return company;
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
-    // Verificar se a empresa existe
-    await this.findOne(id);
+    await this.findOne(id); 
     
-    // Se está tentando atualizar o CNPJ, validar e verificar duplicidade
     if (updateCompanyDto.cnpj) {
       if (!validateCNPJ(updateCompanyDto.cnpj)) {
         throw new BadRequestException('CNPJ inválido');
@@ -75,7 +98,7 @@ export class CompaniesService {
     const result = await this.companiesRepository.delete(id);
     
     if (result.affected === 0) {
-      throw new NotFoundException(`Empresa com ID ${id} não encontrada`);
+      throw new NotFoundException('Empresa com ID ' + id + ' não encontrada');
     }
   }
 }

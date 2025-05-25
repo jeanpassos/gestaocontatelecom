@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards, ValidationPipe } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -20,6 +20,12 @@ export class CompaniesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);
+  }
+
+  @Get('cnpj/:cnpj')
+  async fetchCNPJData(@Param('cnpj') cnpj: string) {
+    // Adicionar validação básica ou usar um Pipe se necessário para o formato do CNPJ
+    return this.companiesService.fetchCNPJData(cnpj);
   }
 
   @Patch(':id')

@@ -5,9 +5,9 @@ CREATE SCHEMA IF NOT EXISTS telefonia;
 SET search_path TO telefonia;
 
 -- Criar tipos ENUM
-CREATE TYPE user_role AS ENUM ('admin', 'supervisor', 'client');
-CREATE TYPE invoice_status AS ENUM ('pending', 'paid', 'overdue', 'canceled');
-CREATE TYPE telco_provider AS ENUM ('vivo', 'claro', 'tim', 'oi', 'other');
+CREATE TYPE IF NOT EXISTS user_role AS ENUM ('admin', 'supervisor', 'client');
+CREATE TYPE IF NOT EXISTS invoice_status AS ENUM ('pending', 'paid', 'overdue', 'canceled');
+CREATE TYPE IF NOT EXISTS telco_provider AS ENUM ('vivo', 'claro', 'tim', 'oi', 'other');
 
 -- Criar tabela de empresas
 CREATE TABLE IF NOT EXISTS company (

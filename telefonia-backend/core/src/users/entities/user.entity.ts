@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 
 export enum UserRole {
@@ -27,6 +27,7 @@ export class User {
   role: UserRole;
 
   @ManyToOne(() => Company, company => company.users)
+  @JoinColumn({ name: 'company_id' })
   company: Company;
 
   @Column({ nullable: true })

@@ -24,6 +24,17 @@ VALUES (
 )
 ON CONFLICT (email) DO NOTHING;
 
+-- Inserir usuário administrador adicional
+INSERT INTO "user" (id, email, password, role, company_id)
+VALUES (
+  'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 
+  'admin1@demo.com',
+  '$2a$10$E0.p8d7Y.XqgS2.F9G5kX.A2gR0hJ4kL5nO6pQ7rS8tU0vW1xY2S', -- Senha: admin123
+  'admin',
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+)
+ON CONFLICT (email) DO NOTHING;
+
 -- Inserir uma fatura de exemplo
 INSERT INTO invoice (
   id, 

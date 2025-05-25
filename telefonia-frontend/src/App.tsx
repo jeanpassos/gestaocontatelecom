@@ -17,9 +17,21 @@ import ConsultantPage from './pages/Consultant/ConsultantPage';
 import ConsultantUnderDevelopment from './pages/Consultant/ConsultantUnderDevelopment';
 import ConsultantDashboard from './pages/Consultant/ConsultantDashboardNew';
 
+import { CircularProgress, Box } from '@mui/material'; // Adicionar import para CircularProgress e Box
+
 // Rota protegida que verifica autenticação e papel do usuário
 const ProtectedRoute = ({ children, requiredRoles = [] }: { children: React.ReactNode, requiredRoles?: string[] }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth(); // Adicionar loading
+
+  if (loading) {
+    // Enquanto o AuthContext está verificando o estado de autenticação,
+    // renderizar um loader para evitar redirecionamento prematuro.
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
   
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;

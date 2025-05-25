@@ -1,6 +1,9 @@
 -- Definir o esquema como padrão para esta sessão
 SET search_path TO telefonia;
 
+-- Remover tabela de segmentos se existir, para garantir a estrutura correta
+DROP TABLE IF EXISTS segment CASCADE;
+
 -- Criar tabela de segmentos
 CREATE TABLE IF NOT EXISTS segment (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

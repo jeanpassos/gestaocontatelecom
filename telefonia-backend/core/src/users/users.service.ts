@@ -96,16 +96,15 @@ export class UsersService {
     // Atualizar a data de modificação
     updateUserDto.updatedAt = new Date();
 
-    // Se estiver atualizando a empresa
-    if (updateUserDto.companyId) {
-      await this.usersRepository.update(id, {
-        ...updateUserDto,
-        company: { id: updateUserDto.companyId },
-      });
-      delete updateUserDto.companyId;
-    } else {
-      await this.usersRepository.update(id, updateUserDto);
+    // Prepara o payload para atualização, tratando companyId separadamente
+    const { companyId, ...restOfDto } = updateUserDto;
+    const payloadToUpdate: any = { ...restOfDto };
+
+    if (companyId) {
+      payloadToUpdate.company = { id: companyId };
     }
+    
+    await this.usersRepository.update(id, payloadToUpdate);
 
     return this.findOne(id);
   }

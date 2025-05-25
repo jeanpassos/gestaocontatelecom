@@ -61,64 +61,23 @@ const CNPJService = {
       // para testar a funcionalidade sem depender de APIs externas
       // Remova este bloco em produção
       // console.log('Usando dados simulados para desenvolvimento');
-      // return this.getMockCNPJData(cnpj); // Comentado para usar a lógica real
-      
-      // Código abaixo comentado temporariamente para testes
-      // /* // Removendo o início do comentário de bloco
-      // Primeiro, verificar se temos o CNPJ no backend
-      try {
-        console.log('Tentando consultar CNPJ no backend...');
-        const response = await api.get(`/companies/cnpj/${cnpj}`);
-        if (response.data) {
-          console.log('CNPJ encontrado no backend!');
-          // Adaptar os dados do backend para o formato esperado
-          return this.adaptCompanyToCNPJData(response.data);
-        }
-      } catch (error) {
-        console.log('CNPJ não encontrado no backend, consultando API externa...', error);
-      }
-      
-      // Se não encontrar no backend, consultar a API do ReceitaWS
-      try {
-        console.log('Consultando API ReceitaWS...');
-        // Nota: Em produção, esta chamada deve ser feita através do backend
-        // para proteger a chave de API e evitar problemas de CORS
-        const response = await axios.get(`https://receitaws.com.br/v1/cnpj/${cnpj}`);
-        
-        if (response.data.status === 'ERROR') {
-          throw new Error(response.data.message);
-        }
-        
-        console.log('Dados obtidos da API ReceitaWS:', response.data);
-        return response.data;
-      } catch (apiError: any) {
-        console.error('Erro ao consultar API ReceitaWS:', apiError);
-        
-        // Se a API do ReceitaWS falhar, tentar a API alternativa
-        try {
-          console.log('Tentando API alternativa...');
-          // API alternativa (CNPJ.ws)
-          const alternativeResponse = await axios.get(`https://api.cnpj.ws/cnpj/${cnpj}`);
-          
-          if (alternativeResponse.data) {
-            console.log('Dados obtidos da API alternativa!');
-            // Adaptar os dados para o formato esperado, se necessário
-            return this.adaptAlternativeApiData(alternativeResponse.data);
-          }
-        } catch (altError) {
-          console.error('Erro na API alternativa:', altError);
-          // Se ambas as APIs falharem, usar dados simulados como último recurso
-          console.log('Todas as APIs falharam, usando dados simulados como último recurso');
-          return this.getMockCNPJData(cnpj);
-        }
-      }
-      // */ // Removendo o fim do comentário de bloco
-      
-      // Se chegou aqui, não conseguiu obter os dados de nenhuma fonte
-      // throw new Error('Não foi possível obter os dados do CNPJ'); // Comentado pois o fallback para mock ainda existe dentro do bloco descomentado
+      // return this.getMockCNPJData(cnpj); // Comentado
+
+      // Agora, chamamos diretamente nosso backend, que lidará com a API externa.
+      console.log('Consultando CNPJ através do backend...');
+      const response = await api.get(`/companies/cnpj/${cnpj}`);
+      // O backend deve retornar os dados no formato CNPJData ou um erro.
+      // Se o backend retornar um erro (ex: 404 se não encontrar, 500 se a API externa falhar),
+      // o interceptor do axios em './api' ou o catch abaixo deve lidar com isso.
+      console.log('Dados do CNPJ recebidos do backend:', response.data);
+      return response.data; // Assumindo que o backend retorna os dados no formato CNPJData
+
     } catch (error: any) {
-      console.error('Erro geral ao consultar CNPJ:', error);
-      throw error;
+      console.error('Erro ao consultar CNPJ via backend:', error.response?.data || error.message, error);
+      // Opcional: retornar null ou um objeto de erro específico em vez de relançar,
+      // para que o componente possa tratar o erro de forma mais amigável.
+      // Por enquanto, relançar para vermos o erro completo no console.
+      throw error; 
     }
   },
   

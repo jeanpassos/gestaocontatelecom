@@ -60,11 +60,11 @@ const CNPJService = {
       // IMPORTANTE: Para fins de desenvolvimento, retornar dados simulados
       // para testar a funcionalidade sem depender de APIs externas
       // Remova este bloco em produção
-      console.log('Usando dados simulados para desenvolvimento');
-      return this.getMockCNPJData(cnpj);
+      // console.log('Usando dados simulados para desenvolvimento');
+      // return this.getMockCNPJData(cnpj); // Comentado para usar a lógica real
       
       // Código abaixo comentado temporariamente para testes
-      /*
+      // /* // Removendo o início do comentário de bloco
       // Primeiro, verificar se temos o CNPJ no backend
       try {
         console.log('Tentando consultar CNPJ no backend...');
@@ -112,10 +112,10 @@ const CNPJService = {
           return this.getMockCNPJData(cnpj);
         }
       }
-      */
+      // */ // Removendo o fim do comentário de bloco
       
       // Se chegou aqui, não conseguiu obter os dados de nenhuma fonte
-      throw new Error('Não foi possível obter os dados do CNPJ');
+      // throw new Error('Não foi possível obter os dados do CNPJ'); // Comentado pois o fallback para mock ainda existe dentro do bloco descomentado
     } catch (error: any) {
       console.error('Erro geral ao consultar CNPJ:', error);
       throw error;

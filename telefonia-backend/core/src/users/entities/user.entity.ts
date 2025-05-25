@@ -39,9 +39,9 @@ export class User {
   @Column({ name: 'avatar_url', nullable: true })
   avatarUrl: string;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
   updatedAt: Date;
 }

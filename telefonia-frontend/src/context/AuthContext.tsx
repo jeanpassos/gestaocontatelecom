@@ -32,26 +32,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const attemptAutoLogin = async () => {
+      console.log('[AuthContext] Attempting auto-login...');
       setLoading(true);
-      const token = localStorage.getItem('token'); // Verifica se existe um token
+      const token = localStorage.getItem('token');
+      console.log('[AuthContext] Token from localStorage on load:', token ? 'Token found' : 'No token found');
+      
       if (token) {
+        console.log('[AuthContext] Token exists, attempting to get profile...');
         try {
-          // Tenta buscar o perfil do usuário para validar o token
-          // O interceptor do api.ts já deve adicionar o token ao header
           const profileUser = await AuthService.getProfile();
+          console.log('[AuthContext] Profile fetched successfully:', profileUser);
           setUser(profileUser);
-          // Atualiza o usuário no localStorage com os dados mais recentes
-          localStorage.setItem('user', JSON.stringify(profileUser));
-        } catch (error) {
-          // Se getProfile falhar (ex: 401 por token inválido/expirado),
-          // o interceptor de resposta do api.ts já deve ter limpado o localStorage
-          // e redirecionado para /login. Aqui, apenas garantimos que o estado local seja limpo.
-          console.error('Falha ao auto-login, limpando sessão:', error);
-          AuthService.logout(); // Garante que o localStorage seja limpo
+          localStorage.setItem('user', JSON.stringify(profileUser)); // Atualiza user no localStorage
+        } catch (error: any) {
+          console.error('[AuthContext] Error during getProfile:', error.response?.data || error.message, error);
+          // O interceptor de resposta do api.ts já deve lidar com 401 (limpar localStorage e redirecionar)
+          // Mas garantimos que o estado local seja limpo.
+          AuthService.logout(); // Chama o logout do AuthService para limpar localStorage
           setUser(null);
+          console.log('[AuthContext] User set to null due to getProfile error.');
         }
+      } else {
+        console.log('[AuthContext] No token in localStorage, user remains null.');
       }
       setLoading(false);
+      console.log('[AuthContext] Auto-login attempt finished.');
     };
 
     attemptAutoLogin();

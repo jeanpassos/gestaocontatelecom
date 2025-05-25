@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -22,16 +22,16 @@ export class Invoice {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'invoice_number' })
   invoiceNumber: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', name: 'due_date' })
   dueDate: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', name: 'payment_date', nullable: true })
   paymentDate: Date;
 
   @Column({
@@ -47,21 +47,23 @@ export class Invoice {
   })
   provider: TelcoProvider;
 
-  @Column({ nullable: true })
+  @Column({ name: 'pdf_url', nullable: true })
   pdfUrl: string;
 
-  @Column('jsonb', { nullable: true })
+  @Column('jsonb', { name: 'invoice_details', nullable: true })
   invoiceDetails: Record<string, any>;
 
   @ManyToOne(() => Company)
+  @JoinColumn({ name: 'company_id' })
   company: Company;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'uploaded_by_id' })
   uploadedBy: User;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

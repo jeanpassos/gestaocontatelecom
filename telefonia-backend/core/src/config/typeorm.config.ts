@@ -8,7 +8,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: '6T8Cs8dbNWAN',
   database: 'telefonia',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true, // Não usar em produção
+  synchronize: false, // Desabilitado para usar migrações
   ssl: {
     rejectUnauthorized: false,
   },

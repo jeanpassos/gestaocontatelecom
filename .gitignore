@@ -1,0 +1,117 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.hypothesis/
+.pytest_cache/
+celerybeat-schedule
+*.pid
+*.pid.lock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+lerna-debug.log*
+.pnp/
+.pnp.js
+.pnp.cjs
+.yarn/install-state.gz
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.yarn/releases
+.yarn/sdks
+.yarn/versions
+
+# React (Create React App)
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# pdf-service specific (if any beyond standard Python)
+pdf-service/uploads/*
+!pdf-service/uploads/.gitkeep
+pdf-service/pdf_service.log
+
+# telefonia-backend specific (if any beyond standard Node.js)
+telefonia-backend/core/dist
+telefonia-backend/core/.DS_Store
+
+# telefonia-frontend specific (if any beyond standard React)
+telefonia-frontend/build
+telefonia-frontend/node_modules
+telefonia-frontend/.DS_Store
+telefonia-frontend/.env.local
+telefonia-frontend/.env.development.local
+telefonia-frontend/.env.test.local
+telefonia-frontend/.env.production.local

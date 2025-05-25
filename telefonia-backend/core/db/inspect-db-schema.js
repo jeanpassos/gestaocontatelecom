@@ -53,6 +53,22 @@ async function inspectSchema() {
           '" não encontrada ou não possui colunas no esquema "telefonia".',
       );
     }
+
+    // Adicionar inspeção do usuário admin2@demo.com
+    const targetUserEmail = 'admin2@demo.com';
+    console.log('\\n--- Detalhes do usuário "' + targetUserEmail + '" --- ');
+    const userResult = await client.query(
+      'SELECT id, email, name, role, active, created_at, updated_at, company_id ' +
+        'FROM telefonia."user" WHERE email = $1;',
+      [targetUserEmail],
+    );
+
+    if (userResult.rows.length > 0) {
+      console.log('Detalhes para o usuário ' + targetUserEmail + ':');
+      console.table(userResult.rows);
+    } else {
+      console.log('Usuário "' + targetUserEmail + '" não encontrado.');
+    }
   } catch (error) {
     console.error(
       'Erro ao inspecionar o esquema do banco de dados:',

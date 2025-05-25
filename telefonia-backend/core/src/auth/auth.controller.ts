@@ -11,16 +11,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginData: { email: string; password: string }) {
     console.log('Recebida tentativa de login:', { email: loginData.email });
-    try {
-      // Validar o usuário diretamente
-      const user = await this.authService.validateUser(loginData.email, loginData.password);
-      // Gerar token e retornar dados do usuário
-      return this.authService.login(user);
-    } catch (error) {
-      console.error('Erro ao validar usuário:', error.message);
-      // Retornar erro formatado para o cliente
-      throw new Error('Falha na autenticação: ' + error.message);
-    }
+    // Validar o usuário diretamente. Se validateUser lançar uma exceção (ex: UnauthorizedException),
+    // ela será automaticamente tratada pelo NestJS e retornará o status HTTP apropriado.
+    const user = await this.authService.validateUser(loginData.email, loginData.password);
+    // Se a validação for bem-sucedida, gerar token e retornar dados do usuário
+    return this.authService.login(user);
   }
 
   @Post('register')

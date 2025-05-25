@@ -8,6 +8,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { AuthModule } from './auth/auth.module';
 import { SegmentsModule } from './segments/segments.module';
 import { ProvidersModule } from './providers/providers.module'; // Import ProvidersModule
+import { ContractsModule } from './contracts/contracts.module'; // Import ContractsModule
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ProvidersModule } from './providers/providers.module'; // Import Provid
     AuthModule,
     SegmentsModule,
     ProvidersModule, // Add ProvidersModule here
+    ContractsModule, // Add ContractsModule here
   ],
   controllers: [AppController],
   providers: [AppService],

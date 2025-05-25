@@ -10,9 +10,10 @@ export class CreateCompanyDto {
   @IsNotEmpty()
   corporateName: string;
 
-  @IsArray()
-  @IsOptional()
-  phoneLines?: string[];
+  // phoneLines foi movido para Contract
+  // @IsArray()
+  // @IsOptional()
+  // phoneLines?: string[];
 
   @IsObject()
   @IsOptional()
@@ -33,21 +34,24 @@ export class CreateCompanyDto {
   @IsOptional()
   type?: 'headquarters' | 'branch';
 
-  @IsString()
-  @IsOptional()
-  @IsUUID()
-  telephonyProviderId?: string; // Esperando o UUID do Provider de telefonia
+  // telephonyProviderId foi movido para Contract
+  // @IsString()
+  // @IsOptional()
+  // @IsUUID()
+  // telephonyProviderId?: string; 
 
   // provider de internet continua sendo uma string dentro de assets.internet.provider
   // não precisa de campo separado no DTO principal se estiver dentro de assets.
 
-  @IsString()
-  @IsOptional()
-  contractDate?: string;
+  // contractDate foi movido para Contract
+  // @IsString()
+  // @IsOptional()
+  // contractDate?: string;
 
-  @IsString()
-  @IsOptional()
-  renewalDate?: string;
+  // renewalDate foi movido para Contract
+  // @IsString()
+  // @IsOptional()
+  // renewalDate?: string;
 
   @IsObject()
   @IsOptional()
@@ -74,7 +78,8 @@ export class CreateCompanyDto {
   @IsOptional()
   assignedUsers?: string[];
 
-  @IsString()
-  @IsOptional()
-  observation?: string;
+  // observation foi movido para Contract
+  // @IsString()
+  // @IsOptional()
+  // observation?: string;
 }

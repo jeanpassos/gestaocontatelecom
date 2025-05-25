@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Contract } from '../../contracts/entities/contract.entity'; // Import Contract
 
 export enum ProviderType {
   TELEPHONY = 'telephony', // Para operadoras de telefonia (móvel/fixa)
@@ -25,6 +26,9 @@ export class Provider {
     default: ProviderType.GENERAL,
   })
   type: ProviderType;
+
+  @OneToMany(() => Contract, contract => contract.provider)
+  contracts: Contract[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;

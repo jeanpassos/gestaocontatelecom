@@ -1,7 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Segment } from '../../segments/entities/segment.entity';
-import { Provider } from '../../providers/entities/provider.entity'; // Import Provider
+// Provider não é mais diretamente relacionado aqui, será via Contract
+// import { Provider } from '../../providers/entities/provider.entity'; 
+import { Contract } from '../../contracts/entities/contract.entity'; // Import Contract
 
 @Entity('company') // Especificar nome da tabela se necessário, ex: 'companies'
 export class Company {
@@ -14,29 +16,34 @@ export class Company {
   @Column({ name: 'corporate_name' })
   corporateName: string;
 
-  @Column('jsonb', { name: 'phone_lines' })
-  phoneLines: string[];
+  // phoneLines foi movido para Contract
+  // @Column('jsonb', { name: 'phone_lines' })
+  // phoneLines: string[];
 
   @Column('jsonb', { nullable: true })
   assets: Record<string, any> | null; // Permitir null
 
-  @ManyToOne(() => Provider, { nullable: true, eager: false }) // provider de telefonia
-  @JoinColumn({ name: 'telephony_provider_id' })
-  telephonyProvider: Provider | null;
+  // telephonyProvider foi removido, a relação agora é via Contract
+  // @ManyToOne(() => Provider, { nullable: true, eager: false }) // provider de telefonia
+  // @JoinColumn({ name: 'telephony_provider_id' })
+  // telephonyProvider: Provider | null;
 
   // O provider de internet continua sendo uma string dentro de assets.internet.provider
 
   @Column({ type: 'varchar', length: 50, nullable: true, name: 'type' })
   type: string | null; // 'headquarters' ou 'branch'
 
-  @Column({ type: 'date', nullable: true, name: 'contract_date' })
-  contractDate: string | null;
+  // contractDate foi movido para Contract
+  // @Column({ type: 'date', nullable: true, name: 'contract_date' })
+  // contractDate: string | null;
 
-  @Column({ type: 'date', nullable: true, name: 'renewal_date' })
-  renewalDate: string | null;
+  // renewalDate foi movido para Contract
+  // @Column({ type: 'date', nullable: true, name: 'renewal_date' })
+  // renewalDate: string | null;
 
-  @Column({ type: 'text', nullable: true, name: 'observation' })
-  observation: string | null;
+  // observation foi movido para Contract
+  // @Column({ type: 'text', nullable: true, name: 'observation' })
+  // observation: string | null;
   
   // address e manager podem ser JSONB ou colunas separadas.
   // Para simplificar, vou assumir que são JSONB por enquanto, como 'assets'.
@@ -58,6 +65,9 @@ export class Company {
   @ManyToOne(() => Segment, segment => segment.companies, { eager: true, nullable: true })
   @JoinColumn({ name: 'segment_id' })
   segment: Segment | null;
+
+  @OneToMany(() => Contract, contract => contract.company)
+  contracts: Contract[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;

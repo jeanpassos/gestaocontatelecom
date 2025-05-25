@@ -5,7 +5,8 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { Company } from './entities/company.entity';
 import { Segment } from '../segments/entities/segment.entity';
-import { Provider } from '../providers/entities/provider.entity'; // Import Provider
+// Provider não é mais injetado ou usado diretamente aqui para 'telephonyProvider'
+// import { Provider } from '../providers/entities/provider.entity'; 
 import { validateCNPJ } from '../utils/validators';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -17,8 +18,9 @@ export class CompaniesService {
     private companiesRepository: Repository<Company>,
     @InjectRepository(Segment)
     private segmentsRepository: Repository<Segment>,
-    @InjectRepository(Provider) // Inject ProviderRepository
-    private providersRepository: Repository<Provider>,
+    // providersRepository não é mais necessário aqui para 'telephonyProvider'
+    // @InjectRepository(Provider) 
+    // private providersRepository: Repository<Provider>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -58,7 +60,7 @@ export class CompaniesService {
       throw new BadRequestException('Já existe uma empresa com este CNPJ');
     }
 
-    const { segmentId, telephonyProviderId, ...companyData } = createCompanyDto;
+    const { segmentId, ...companyData } = createCompanyDto; // Removido telephonyProviderId
     const company = this.companiesRepository.create(companyData);
 
     if (segmentId) {
@@ -69,25 +71,22 @@ export class CompaniesService {
       company.segment = segment;
     }
 
-    if (telephonyProviderId) {
-      const telephonyProvider = await this.providersRepository.findOneBy({ id: telephonyProviderId });
-      if (!telephonyProvider) {
-        console.warn(`Operadora de telefonia com ID ${telephonyProviderId} não encontrada. Empresa será criada sem operadora de telefonia associada.`);
-      }
-      company.telephonyProvider = telephonyProvider;
-    }
+    // Bloco do telephonyProviderId removido
     
     return this.companiesRepository.save(company);
   }
 
   async findAll(): Promise<Company[]> {
-    return this.companiesRepository.find({ relations: ['segment', 'users', 'telephonyProvider'] });
+    // Removido 'telephonyProvider' das relações. 
+    // A relação com contratos (e por sua vez, provedores) será carregada separadamente se necessário.
+    return this.companiesRepository.find({ relations: ['segment', 'users', 'contracts'] }); 
   }
 
   async findOne(id: string): Promise<Company> {
     const company = await this.companiesRepository.findOne({ 
       where: { id },
-      relations: ['users', 'segment', 'telephonyProvider'] 
+      // Removido 'telephonyProvider'. Adicionado 'contracts' para carregar os contratos associados.
+      relations: ['users', 'segment', 'contracts', 'contracts.provider'] 
     });
     
     if (!company) {
@@ -114,7 +113,7 @@ export class CompaniesService {
       }
     }
 
-    const { segmentId, telephonyProviderId, ...companyData } = updateCompanyDto;
+    const { segmentId, ...companyData } = updateCompanyDto; // Removido telephonyProviderId
     
     Object.assign(companyToUpdate, companyData);
 
@@ -132,18 +131,7 @@ export class CompaniesService {
       }
     }
 
-    if (telephonyProviderId !== undefined) { // Permite definir como null para remover
-      if (telephonyProviderId === null) {
-        companyToUpdate.telephonyProvider = null;
-      } else {
-        const telephonyProvider = await this.providersRepository.findOneBy({ id: telephonyProviderId });
-        if (!telephonyProvider) {
-          console.warn(`Operadora de telefonia com ID ${telephonyProviderId} não encontrada durante a atualização. Operadora não alterada.`);
-        } else {
-          companyToUpdate.telephonyProvider = telephonyProvider;
-        }
-      }
-    }
+    // Bloco do telephonyProviderId removido
 
     await this.companiesRepository.save(companyToUpdate);
     return this.findOne(id);

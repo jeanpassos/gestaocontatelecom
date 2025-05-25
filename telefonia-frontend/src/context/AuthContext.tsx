@@ -31,12 +31,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Verificar se o usuário já está autenticado ao carregar a aplicação
-    const storedUser = AuthService.getCurrentUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
-    setLoading(false);
+    const attemptAutoLogin = async () => {
+      setLoading(true);
+      const token = localStorage.getItem('token'); // Verifica se existe um token
+      if (token) {
+        try {
+          // Tenta buscar o perfil do usuário para validar o token
+          // O interceptor do api.ts já deve adicionar o token ao header
+          const profileUser = await AuthService.getProfile();
+          setUser(profileUser);
+          // Atualiza o usuário no localStorage com os dados mais recentes
+          localStorage.setItem('user', JSON.stringify(profileUser));
+        } catch (error) {
+          // Se getProfile falhar (ex: 401 por token inválido/expirado),
+          // o interceptor de resposta do api.ts já deve ter limpado o localStorage
+          // e redirecionado para /login. Aqui, apenas garantimos que o estado local seja limpo.
+          console.error('Falha ao auto-login, limpando sessão:', error);
+          AuthService.logout(); // Garante que o localStorage seja limpo
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    attemptAutoLogin();
   }, []);
 
   const login = async (email: string, password: string) => {

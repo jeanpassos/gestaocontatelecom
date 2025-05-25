@@ -2,7 +2,7 @@
 SET search_path TO telefonia;
 
 -- Atualizar o tipo user_role para incluir o papel de consultor
-ALTER TYPE user_role ADD VALUE 'consultant' AFTER 'supervisor';
+ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'consultant';
 
 -- Adicionar coluna name à tabela de usuários
 ALTER TABLE "user" ADD COLUMN IF NOT EXISTS name VARCHAR(255);

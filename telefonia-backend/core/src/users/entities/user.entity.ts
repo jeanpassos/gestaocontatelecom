@@ -36,7 +36,7 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'avatar_url', nullable: true })
   avatarUrl: string;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })

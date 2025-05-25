@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS invoice (
 );
 
 -- Criar índices para melhor performance
-CREATE INDEX idx_user_email ON "user"(email);
-CREATE INDEX idx_user_company ON "user"(company_id);
-CREATE INDEX idx_invoice_company ON invoice(company_id);
-CREATE INDEX idx_invoice_status ON invoice(status);
-CREATE INDEX idx_invoice_due_date ON invoice(due_date);
+CREATE INDEX IF NOT EXISTS idx_user_email ON "user"(email);
+CREATE INDEX IF NOT EXISTS idx_user_company ON "user"(company_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_company ON invoice(company_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_status ON invoice(status);
+CREATE INDEX IF NOT EXISTS idx_invoice_due_date ON invoice(due_date);

@@ -18,7 +18,7 @@ INSERT INTO "user" (id, email, password, role, company_id)
 VALUES (
   'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 
   'admin@demo.com',
-  '$2a$10$8KvT2nTf.D61PRbKN7HwIe2mG.fpF.DML5cDxJXM5JeolOaYFHQ1q',
+  '$2a$10$E0.p8d7Y.XqgS2.F9G5kX.A2gR0hJ4kL5nO6pQ7rS8tU0vW1xY2S', -- Hash atualizado para 'admin123'
   'admin',
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
 )

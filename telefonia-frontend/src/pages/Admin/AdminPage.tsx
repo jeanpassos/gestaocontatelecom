@@ -18,7 +18,8 @@ import {
   VpnKey as VpnKeyIcon,
   Home as HomeIcon,
   AdminPanelSettings as AdminIcon,
-  Api as ApiIcon
+  Api as ApiIcon,
+  Business as BusinessIcon // Ícone para Operadoras
 } from '@mui/icons-material';
 import AppleLayout from '../../components/Layout/AppleLayout';
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +27,7 @@ import UsersTab from './UsersTab';
 import RolesTab from './RolesTab';
 import SettingsTab from './SettingsTab';
 import IntegrationsTab from './IntegrationsTab';
+import ProvidersTab from './ProvidersTab'; // Importar a nova tab
 
 // Interface para controle de tabs
 interface TabPanelProps {
@@ -73,7 +75,8 @@ const AdminPage: React.FC = () => {
     const tabParam = params.get('tab');
     if (tabParam !== null) {
       const tabIndex = parseInt(tabParam, 10);
-      if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex <= 3) {
+      // Atualizar o limite para o número de abas (0 a 4)
+      if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex <= 4) { 
         setActiveTab(tabIndex);
       }
     }
@@ -221,6 +224,18 @@ const AdminPage: React.FC = () => {
                 fontSize: '1rem'
               }}
             />
+            <Tab
+              icon={<BusinessIcon />}
+              iconPosition="start"
+              label="Operadoras"
+              {...a11yProps(4)}
+              sx={{
+                fontWeight: 600,
+                textTransform: 'none',
+                minHeight: '64px',
+                fontSize: '1rem'
+              }}
+            />
           </Tabs>
 
           {/* Conteúdo das tabs */}
@@ -236,6 +251,9 @@ const AdminPage: React.FC = () => {
             </TabPanel>
             <TabPanel value={activeTab} index={3}>
               <IntegrationsTab />
+            </TabPanel>
+            <TabPanel value={activeTab} index={4}>
+              <ProvidersTab />
             </TabPanel>
           </Box>
         </Paper>

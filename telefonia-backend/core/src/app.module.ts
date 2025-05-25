@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { AuthModule } from './auth/auth.module';
 import { SegmentsModule } from './segments/segments.module';
+import { ProvidersModule } from './providers/providers.module'; // Import ProvidersModule
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { SegmentsModule } from './segments/segments.module';
     UsersModule,
     InvoicesModule,
     AuthModule,
-    SegmentsModule
+    SegmentsModule,
+    ProvidersModule, // Add ProvidersModule here
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Segment } from '../../segments/entities/segment.entity';
+import { Provider } from '../../providers/entities/provider.entity'; // Import Provider
 
-@Entity()
+@Entity('company') // Especificar nome da tabela se necessário, ex: 'companies'
 export class Company {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -15,9 +17,51 @@ export class Company {
   @Column('jsonb', { name: 'phone_lines' })
   phoneLines: string[];
 
-  @Column('jsonb')
-  assets: Record<string, any>;
+  @Column('jsonb', { nullable: true })
+  assets: Record<string, any> | null; // Permitir null
+
+  @ManyToOne(() => Provider, { nullable: true, eager: false }) // provider de telefonia
+  @JoinColumn({ name: 'telephony_provider_id' })
+  telephonyProvider: Provider | null;
+
+  // O provider de internet continua sendo uma string dentro de assets.internet.provider
+
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'type' })
+  type: string | null; // 'headquarters' ou 'branch'
+
+  @Column({ type: 'date', nullable: true, name: 'contract_date' })
+  contractDate: string | null;
+
+  @Column({ type: 'date', nullable: true, name: 'renewal_date' })
+  renewalDate: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'observation' })
+  observation: string | null;
+  
+  // address e manager podem ser JSONB ou colunas separadas.
+  // Para simplificar, vou assumir que são JSONB por enquanto, como 'assets'.
+  // Se forem colunas separadas, a entidade e migração precisariam de mais detalhes.
+  @Column('jsonb', { nullable: true, name: 'address' })
+  address: Record<string, any> | null;
+
+  @Column('jsonb', { nullable: true, name: 'manager' })
+  manager: Record<string, any> | null;
+
+  // assignedUsers é uma relação ou um array de IDs?
+  // Se for uma relação ManyToMany com User, precisa de setup diferente.
+  // Se for array de IDs, pode ser jsonb. O DTO tem string[].
+  // Por ora, não vou adicionar na entidade até ter mais clareza.
 
   @OneToMany(() => User, user => user.company)
   users: User[];
+
+  @ManyToOne(() => Segment, segment => segment.companies, { eager: true, nullable: true })
+  @JoinColumn({ name: 'segment_id' })
+  segment: Segment | null;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
+  updatedAt: Date;
 }

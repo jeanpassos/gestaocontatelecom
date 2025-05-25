@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Company } from '../../companies/entities/company.entity';
 
 @Entity('segment') // Opcionalmente, nome da tabela pode ser 'segments'
 export class Segment {
@@ -16,4 +17,7 @@ export class Segment {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
   updatedAt: Date;
+
+  @OneToMany(() => Company, company => company.segment)
+  companies: Company[];
 }

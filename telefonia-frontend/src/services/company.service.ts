@@ -1,13 +1,15 @@
 import api from './api';
 import { generateMockCompanies } from '../utils/mockData';
+import { Segment } from './segment.service';
+import { Provider } from './provider.service'; // Importar Provider
 
 export interface Company {
   id: string;
   cnpj: string;
   corporateName: string;
   type?: 'headquarters' | 'branch'; // matriz ou filial
-  provider?: 'vivo' | 'claro' | 'tim' | 'oi' | 'other'; // operadora
-  segment?: 'comercio' | 'industria' | 'servicos' | 'tecnologia' | 'saude' | 'educacao' | 'financeiro' | 'agronegocio' | 'construcao' | 'transporte' | 'alimentacao' | 'entretenimento' | 'turismo' | 'outros'; // segmento de atuação
+  telephonyProvider?: Provider | null; // Alterado de provider para telephonyProvider
+  segment?: Segment | string; 
   contractDate?: string; // data de contratação
   renewalDate?: string; // data da próxima renovação
   // Novos campos
@@ -27,7 +29,31 @@ export interface Company {
     hasWhatsapp?: boolean;
   };
   phoneLines: string[];
-  assets: Record<string, any>;
+  assets: {
+    mobileDevices?: Array<{
+      model?: string;
+      assignedTo?: string;
+      assignedDate?: string | null;
+      phoneLine?: string | null;
+      phoneLineIndex?: number;
+    }>;
+    internet?: {
+      plan?: string;
+      provider?: string; // Adicionado provider de internet
+      speed?: string;
+      hasFixedIp?: boolean;
+      ipAddress?: string;
+      subnetMask?: string;
+      gateway?: string;
+      dns?: string;
+      ipNotes?: string;
+    };
+    tv?: {
+      plan?: string;
+      channels?: string;
+    };
+    [key: string]: any; // Para outras chaves em assets
+  };
   users?: any[]; // Usuários relacionados (deprecated)
   assignedUsers?: string[]; // IDs dos usuários que têm acesso à empresa
   observation?: string; // campo de observações gerais
@@ -89,7 +115,10 @@ const CompanyService = {
         corporateName: cleanedCompany.corporateName,
         phoneLines: cleanedCompany.phoneLines || [],
         type: cleanedCompany.type,
-        provider: cleanedCompany.provider,
+        telephonyProviderId: typeof cleanedCompany.telephonyProvider === 'object' && cleanedCompany.telephonyProvider?.id 
+          ? cleanedCompany.telephonyProvider.id 
+          : (typeof cleanedCompany.telephonyProvider === 'string' ? cleanedCompany.telephonyProvider : undefined),
+        segmentId: typeof cleanedCompany.segment === 'string' ? cleanedCompany.segment : undefined, // Enviar segmentId
         contractDate: cleanedCompany.contractDate,
         renewalDate: cleanedCompany.renewalDate,
         address: cleanedCompany.address,
@@ -203,7 +232,10 @@ const CompanyService = {
         corporateName: cleanedCompany.corporateName,
         phoneLines: cleanedCompany.phoneLines || [],
         type: cleanedCompany.type,
-        provider: cleanedCompany.provider,
+        telephonyProviderId: typeof cleanedCompany.telephonyProvider === 'object' && cleanedCompany.telephonyProvider?.id 
+          ? cleanedCompany.telephonyProvider.id 
+          : (typeof cleanedCompany.telephonyProvider === 'string' ? cleanedCompany.telephonyProvider : undefined),
+        segmentId: typeof cleanedCompany.segment === 'string' ? cleanedCompany.segment : undefined, // Enviar segmentId
         contractDate: cleanedCompany.contractDate,
         renewalDate: cleanedCompany.renewalDate,
         address: cleanedCompany.address,

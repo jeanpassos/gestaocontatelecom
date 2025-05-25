@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Adicionar useCallback
 import {
   Accordion,
   AccordionDetails,
@@ -61,6 +61,7 @@ import { useAuth } from '../../context/AuthContext';
 import CompanyService, { Company, CompanyFilter } from '../../services/company.service';
 import UserService, { User } from '../../services/user.service';
 import SegmentService, { Segment } from '../../services/segment.service';
+import ProviderService, { Provider, ProviderType } from '../../services/provider.service'; // Importar ProviderService
 import CNPJService from '../../services/cnpj.service';
 import CEPService from '../../services/cep.service';
 import { useSnackbar } from 'notistack';
@@ -122,13 +123,18 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
   
   const [users, setUsers] = useState<User[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
+  const [telephonyProviders, setTelephonyProviders] = useState<Provider[]>([]);
+  const [internetProviders, setInternetProviders] = useState<Provider[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingSegments, setLoadingSegments] = useState(false);
+  const [loadingTelephonyProviders, setLoadingTelephonyProviders] = useState(false);
+  const [loadingInternetProviders, setLoadingInternetProviders] = useState(false);
+
   const [formData, setFormData] = useState<Partial<Company>>({
     cnpj: '',
     corporateName: '',
     type: 'branch',
-    provider: undefined,
+    telephonyProvider: undefined, // Alterado de provider para telephonyProvider (objeto)
     segment: undefined,
     contractDate: '',
     renewalDate: '',
@@ -152,6 +158,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
       mobileDevices: [],
       internet: {
         plan: '',
+        provider: undefined, // Operadora de Internet
         speed: '',
         hasFixedIp: false,
         ipAddress: '',
@@ -200,13 +207,43 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     }
   }, [enqueueSnackbar]);
 
-  // Carregar usuários e segmentos quando o modal for aberto
+  // Carregar lista de operadoras de telefonia
+  const loadTelephonyProviders = useCallback(async () => {
+    try {
+      setLoadingTelephonyProviders(true);
+      const data = await ProviderService.getAll({ type: ProviderType.TELEPHONY });
+      setTelephonyProviders(data);
+    } catch (error) {
+      console.error('Erro ao carregar operadoras de telefonia:', error);
+      enqueueSnackbar('Erro ao carregar lista de operadoras de telefonia', { variant: 'error' });
+    } finally {
+      setLoadingTelephonyProviders(false);
+    }
+  }, [enqueueSnackbar]);
+
+  // Carregar lista de operadoras de internet
+  const loadInternetProviders = useCallback(async () => {
+    try {
+      setLoadingInternetProviders(true);
+      const data = await ProviderService.getAll({ type: ProviderType.INTERNET });
+      setInternetProviders(data);
+    } catch (error) {
+      console.error('Erro ao carregar operadoras de internet:', error);
+      enqueueSnackbar('Erro ao carregar lista de operadoras de internet', { variant: 'error' });
+    } finally {
+      setLoadingInternetProviders(false);
+    }
+  }, [enqueueSnackbar]);
+
+  // Carregar todos os dados necessários quando o modal for aberto
   useEffect(() => {
     if (open) {
       loadUsers();
       loadSegments();
+      loadTelephonyProviders();
+      loadInternetProviders();
     }
-  }, [open, loadUsers, loadSegments]);
+  }, [open, loadUsers, loadSegments, loadTelephonyProviders, loadInternetProviders]);
   
   // Função para consultar CNPJ e preencher dados automaticamente
   const handleCNPJConsult = async () => {
@@ -300,7 +337,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
         cnpj: company.cnpj,
         corporateName: company.corporateName,
         type: company.type || 'branch',
-        provider: company.provider,
+        telephonyProvider: company.telephonyProvider, // Usar telephonyProvider
         segment: company.segment,
         contractDate: company.contractDate || '',
         renewalDate: company.renewalDate || '',
@@ -550,19 +587,25 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
             <TextField
               select
               fullWidth
-              label="Operadora"
-              name="provider"
-              value={formData.provider || ''}
-              onChange={handleChange}
-              disabled={loading}
+              label="Operadora de Telefonia"
+              name="telephonyProvider" // Nome do campo no formData
+              value={formData.telephonyProvider ? (formData.telephonyProvider as Provider).id : ''}
+              onChange={(e) => {
+                const providerId = e.target.value;
+                const selectedProvider = telephonyProviders.find(p => p.id === providerId);
+                setFormData(prev => ({ ...prev, telephonyProvider: selectedProvider || null }));
+              }}
+              disabled={loading || loadingTelephonyProviders}
               sx={{ mb: 2 }}
             >
               <MenuItem value=""><em>Selecione</em></MenuItem>
-              <MenuItem value="vivo">Vivo</MenuItem>
-              <MenuItem value="claro">Claro</MenuItem>
-              <MenuItem value="tim">TIM</MenuItem>
-              <MenuItem value="oi">Oi</MenuItem>
-              <MenuItem value="other">Outra</MenuItem>
+              {loadingTelephonyProviders ? (
+                <MenuItem disabled>Carregando...</MenuItem>
+              ) : (
+                telephonyProviders.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                ))
+              )}
             </TextField>
           </Grid>
           
@@ -572,10 +615,14 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
               select
               fullWidth
               label="Segmento"
-              name="segment"
-              value={formData.segment || ''}
-              onChange={handleChange}
-              disabled={loading}
+              name="segment" // Este nome será usado pelo handleChange
+              value={
+                formData.segment 
+                  ? (typeof formData.segment === 'object' ? (formData.segment as Segment).id : formData.segment) 
+                  : ''
+              }
+              onChange={handleChange} // handleChange vai colocar o segment.id em formData.segment
+              disabled={loading || loadingSegments}
               sx={{ mb: 2 }}
             >
               <MenuItem value=""><em>Selecione</em></MenuItem>
@@ -584,11 +631,11 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                   <CircularProgress size={20} sx={{ mr: 1 }} /> Carregando segmentos...
                 </MenuItem>
               ) : segments.length > 0 ? (
-                segments.map((segment) => (
-                  <MenuItem key={segment.id} value={segment.value}>{segment.name}</MenuItem>
+                segments.map((s) => (
+                  <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem> // Usar s.id como value
                 ))
               ) : (
-                <MenuItem value="outros">Outros</MenuItem>
+                <MenuItem value="outros" disabled>Outros (nenhum segmento carregado)</MenuItem>
               )}
             </TextField>
           </Grid>
@@ -799,8 +846,31 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
             </Typography>
           </Grid>
           
+          {/* Operadora de Internet */}
+          <Grid item xs={12} md={4}>
+            <TextField
+              select
+              fullWidth
+              label="Operadora de Internet"
+              name="assets.internet.provider" // Mantém o nome para handleChange aninhado
+              value={formData.assets?.internet?.provider || ''} // Salva o 'value' da operadora de internet
+              onChange={handleChange}
+              disabled={loading || loadingInternetProviders}
+              sx={{ mb: 2 }}
+            >
+              <MenuItem value=""><em>Selecione</em></MenuItem>
+              {loadingInternetProviders ? (
+                <MenuItem disabled>Carregando...</MenuItem>
+              ) : (
+                internetProviders.map((p) => (
+                  <MenuItem key={p.id} value={p.value}>{p.name}</MenuItem> // Salva o 'value'
+                ))
+              )}
+            </TextField>
+          </Grid>
+
           {/* Plano de Internet */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Plano de Internet"
@@ -813,7 +883,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           </Grid>
           
           {/* Velocidade */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Velocidade"
@@ -857,8 +927,8 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 <TextField
                   fullWidth
                   label="Endereço IP Principal"
-                  name="assets.internet.ip"
-                  value={formData.assets?.internet?.ip || ''}
+                  name="assets.internet.ipAddress"
+                  value={formData.assets?.internet?.ipAddress || ''}
                   onChange={handleChange}
                   disabled={loading}
                   sx={{ mb: 2 }}
@@ -1415,40 +1485,18 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                     Operadora
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {company.provider ? (
+                    {company.telephonyProvider ? (
                       <Chip 
                         size="small" 
-                        label={{
-                          'vivo': 'Vivo',
-                          'claro': 'Claro',
-                          'tim': 'TIM',
-                          'oi': 'Oi',
-                          'other': 'Outra'
-                        }[company.provider] || company.provider}
+                        label={company.telephonyProvider.name}
+                        // A estilização baseada no valor pode precisar ser ajustada
+                        // se os valores de company.telephonyProvider.value forem diferentes
+                        // dos antigos valores de company.provider (ex: 'vivo' vs 'uuid_da_vivo')
+                        // Por ora, manterei uma estilização genérica ou baseada no nome.
                         sx={{
-                          backgroundColor: {
-                            'vivo': 'rgba(90, 103, 216, 0.1)',
-                            'claro': 'rgba(237, 28, 36, 0.1)',
-                            'tim': 'rgba(0, 114, 198, 0.1)',
-                            'oi': 'rgba(255, 127, 0, 0.1)',
-                            'other': 'rgba(150, 150, 150, 0.1)'
-                          }[company.provider] || 'rgba(150, 150, 150, 0.1)',
-                          color: {
-                            'vivo': '#5A67D8',
-                            'claro': '#ED1C24',
-                            'tim': '#0072C6',
-                            'oi': '#FF7F00',
-                            'other': '#666666'
-                          }[company.provider] || '#666666',
-                          border: `1px solid ${
-                            {
-                              'vivo': 'rgba(90, 103, 216, 0.3)',
-                              'claro': 'rgba(237, 28, 36, 0.3)',
-                              'tim': 'rgba(0, 114, 198, 0.3)',
-                              'oi': 'rgba(255, 127, 0, 0.3)',
-                              'other': 'rgba(150, 150, 150, 0.3)'
-                            }[company.provider] || 'rgba(150, 150, 150, 0.3)'
-                          }`
+                          backgroundColor: theme.palette.grey[200], // Estilo genérico
+                          color: theme.palette.text.primary,
+                          border: `1px solid ${theme.palette.grey[400]}`
                         }}
                       />
                     ) : 'Não especificada'}
@@ -1463,7 +1511,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                     {company.segment ? (
                       <Chip 
                         size="small" 
-                        label={segments.find(s => s.value === company.segment)?.name || company.segment}
+                        label={typeof company.segment === 'object' ? (company.segment.name || company.segment.value) : company.segment}
                         sx={{
                           backgroundColor: 'rgba(156, 39, 176, 0.08)',
                           color: '#9C27B0',
@@ -1701,7 +1749,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                   company.phoneLines.map((line, index) => {
                     // Verificar se esta linha está associada a algum aparelho
                     const associatedDevice = company.assets?.mobileDevices?.find((device: any) => device.phoneLine === line);
-                    const isAssigned = associatedDevice && associatedDevice.assignedTo;
+                    const isAssigned = !!associatedDevice && !!associatedDevice.assignedTo;
                     
                     // Cor laranja para itens locados
                     const ORANGE_COLOR = '#ED6C02';
@@ -1833,9 +1881,9 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                 pr: 1
               }}>
                 {/* Filtrar apenas aparelhos sem linha telefônica associada */}
-                {(company.assets?.mobileDevices?.filter((device: any) => !device.phoneLine)?.length > 0) ? (
-                  company.assets.mobileDevices
-                    .filter((device: any) => !device.phoneLine)
+                {(company.assets?.mobileDevices?.filter((device: any) => !device.phoneLine)?.length ?? 0) > 0 ? (
+                  company.assets?.mobileDevices
+                    ?.filter((device: any) => !device.phoneLine)
                     .map((device: any, index: number) => {
                       // Cor laranja para itens locados
                       const ORANGE_COLOR = '#ED6C02';
@@ -1983,7 +2031,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                           Endereço IP
                         </Typography>
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {company.assets.internet.ip || 'Não informado'}
+                          {company.assets.internet.ipAddress || 'Não informado'}
                         </Typography>
                       </Box>
                       
@@ -2476,51 +2524,16 @@ const CompaniesPage: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {company.provider ? (
+                      {company.telephonyProvider ? (
                         <Chip
-                          label={company.provider.toUpperCase()}
+                          label={company.telephonyProvider.name} // Exibir o nome da operadora
                           size="small"
                           sx={{
                             borderRadius: '8px',
-                            backgroundColor: (() => {
-                              switch(company.provider) {
-                                case 'vivo': return 'rgba(100, 100, 255, 0.08)';
-                                case 'claro': return 'rgba(255, 0, 0, 0.08)';
-                                case 'tim': return 'rgba(0, 0, 255, 0.08)';
-                                case 'oi': return 'rgba(255, 165, 0, 0.08)';
-                                default: return 'rgba(128, 128, 128, 0.08)';
-                              }
-                            })(),
-                            color: (() => {
-                              switch(company.provider) {
-                                case 'vivo': return '#6464FF';
-                                case 'claro': return '#FF0000';
-                                case 'tim': return '#0000FF';
-                                case 'oi': return '#FFA500';
-                                default: return '#808080';
-                              }
-                            })(),
-                            border: (() => {
-                              switch(company.provider) {
-                                case 'vivo': return '1px solid rgba(100, 100, 255, 0.2)';
-                                case 'claro': return '1px solid rgba(255, 0, 0, 0.2)';
-                                case 'tim': return '1px solid rgba(0, 0, 255, 0.2)';
-                                case 'oi': return '1px solid rgba(255, 165, 0, 0.2)';
-                                default: return '1px solid rgba(128, 128, 128, 0.2)';
-                              }
-                            })(),
+                            backgroundColor: theme.palette.grey[200], // Estilo genérico
+                            color: theme.palette.text.primary,
+                            border: `1px solid ${theme.palette.grey[400]}`,
                             fontWeight: 500,
-                            '&:hover': {
-                              backgroundColor: (() => {
-                                switch(company.provider) {
-                                  case 'vivo': return 'rgba(100, 100, 255, 0.12)';
-                                  case 'claro': return 'rgba(255, 0, 0, 0.12)';
-                                  case 'tim': return 'rgba(0, 0, 255, 0.12)';
-                                  case 'oi': return 'rgba(255, 165, 0, 0.12)';
-                                  default: return 'rgba(128, 128, 128, 0.12)';
-                                }
-                              })()
-                            }
                           }}
                         />
                       ) : (
@@ -2531,7 +2544,7 @@ const CompaniesPage: React.FC = () => {
                     <TableCell>
                       {company.segment ? (
                         <Chip
-                          label={segments.find(s => s.value === company.segment)?.name || company.segment}
+                          label={typeof company.segment === 'object' ? (company.segment.name || company.segment.value) : company.segment}
                           size="small"
                           sx={{
                             borderRadius: '8px',
@@ -2601,10 +2614,10 @@ const CompaniesPage: React.FC = () => {
                     </TableCell>
                     {/* Coluna de Aparelho celular */}
                     <TableCell>
-                      {(company.assets?.mobileDevices?.length > 0) ? (
+                      {(company.assets?.mobileDevices?.length ?? 0) > 0 ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                           <Chip
-                            label={`${company.assets.mobileDevices.length} aparelho${company.assets.mobileDevices.length > 1 ? 's' : ''}`}
+                            label={`${company.assets?.mobileDevices?.length} aparelho${(company.assets?.mobileDevices?.length ?? 0) > 1 ? 's' : ''}`}
                             size="small"
                             icon={<MobileIcon sx={{ color: '#E91E63' }} />}
                             sx={{
@@ -2619,9 +2632,9 @@ const CompaniesPage: React.FC = () => {
                               transition: 'all 0.2s ease-in-out'
                             }}
                           />
-                          {company.assets.mobileDevices.some((device: any) => device.assignedTo) && (
+                          {company.assets?.mobileDevices?.some((device: any) => device.assignedTo) && (
                             <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
-                              {company.assets.mobileDevices.filter((device: any) => device.assignedTo).length} locado(s)
+                              {company.assets?.mobileDevices?.filter((device: any) => device.assignedTo).length} locado(s)
                             </Typography>
                           )}
                         </Box>

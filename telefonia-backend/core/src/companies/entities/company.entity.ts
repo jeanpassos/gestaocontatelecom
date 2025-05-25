@@ -9,10 +9,10 @@ export class Company {
   @Column({ unique: true })
   cnpj: string;
 
-  @Column()
+  @Column({ name: 'corporate_name' })
   corporateName: string;
 
-  @Column('jsonb')
+  @Column('jsonb', { name: 'phone_lines' })
   phoneLines: string[];
 
   @Column('jsonb')

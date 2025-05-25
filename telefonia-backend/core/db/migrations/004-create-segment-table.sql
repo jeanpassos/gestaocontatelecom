@@ -9,6 +9,3 @@ CREATE TABLE IF NOT EXISTS segment (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
--- Opcional: Adicionar um índice na coluna 'value' se houver muitas buscas por ela
-CREATE INDEX IF NOT EXISTS idx_segment_value ON segment(value);

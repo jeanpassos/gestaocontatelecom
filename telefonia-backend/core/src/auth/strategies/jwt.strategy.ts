@@ -15,15 +15,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.usersService.findOne(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException('Usuário não encontrado');
+    console.log('[JwtStrategy] Iniciando validação do payload do token:', JSON.stringify(payload));
+    if (!payload || !payload.sub) {
+      console.error('[JwtStrategy] Payload do token inválido ou sem "sub" (ID do usuário).');
+      throw new UnauthorizedException('Token inválido: payload.sub ausente.');
     }
-    if (!user.active) { // Adicionar esta verificação
-      throw new UnauthorizedException('Usuário inativo');
+
+    console.log('[JwtStrategy] Buscando usuário com ID (payload.sub): ' + payload.sub);
+    const user = await this.usersService.findOne(payload.sub);
+    
+    if (!user) {
+      console.error('[JwtStrategy] Usuário com ID ' + payload.sub + ' não encontrado no banco.');
+      throw new UnauthorizedException('Usuário do token não encontrado.');
+    }
+    console.log('[JwtStrategy] Usuário encontrado: ID=' + user.id + ', Email=' + user.email + ', Active=' + user.active);
+
+    if (!user.active) {
+      console.error('[JwtStrategy] Usuário ' + user.email + ' está inativo.');
+      throw new UnauthorizedException('Usuário inativo.');
     }
     
-    // Não incluir a senha no objeto retornado
+    console.log('[JwtStrategy] Validação bem-sucedida para usuário: ' + user.email);
+    // Não incluir a senha no objeto retornado para ser anexado ao Request
     const { password, ...result } = user;
     return result;
   }

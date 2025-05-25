@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto'; // Importar UpdateUserDto
 import { User, UserRole } from './entities/user.entity';
 
 // Estes seriam importados do módulo de autenticação após implementados
@@ -36,7 +37,7 @@ export class UsersController {
   @Patch(':id')
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(UserRole.ADMIN)
-  async update(@Param('id') id: string, @Body() updateUserDto: any) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) { // Usar UpdateUserDto
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -45,5 +46,19 @@ export class UsersController {
   // @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Patch(':id/activate')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  async activate(@Param('id') id: string): Promise<User> {
+    return this.usersService.activate(id);
+  }
+
+  @Patch(':id/deactivate')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  async deactivate(@Param('id') id: string): Promise<User> {
+    return this.usersService.deactivate(id);
   }
 }

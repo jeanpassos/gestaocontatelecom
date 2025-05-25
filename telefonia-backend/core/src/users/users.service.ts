@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto'; // Importar UpdateUserDto
 
 @Injectable()
 export class UsersService {
@@ -49,15 +50,19 @@ export class UsersService {
         'avatarUrl', 
         'createdAt', 
         'updatedAt', 
-        'company'
+        'company',
+        'active' // Adicionar active
       ]
     });
   }
 
   async findOne(id: string): Promise<User> {
+    // findOne sem select explícito já deve trazer todos os campos da entidade, incluindo 'active'
+    // mas para garantir consistência com findAll e findByEmail, podemos adicionar select aqui também se quisermos.
+    // Por ora, vamos assumir que ele já traz 'active'.
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['company'],
+      relations: ['company'], 
     });
 
     if (!user) {
@@ -80,12 +85,13 @@ export class UsersService {
         'phone', 
         'avatarUrl', 
         'createdAt', 
-        'updatedAt'
+        'updatedAt',
+        'active' // Adicionar active
       ]
     });
   }
 
-  async update(id: string, updateUserDto: any): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> { // Usar UpdateUserDto
     await this.findOne(id); // Verificar se existe
 
     // Se estiver atualizando a senha, hash dela
@@ -93,8 +99,8 @@ export class UsersService {
       updateUserDto.password = await this.hashPassword(updateUserDto.password);
     }
     
-    // Atualizar a data de modificação
-    updateUserDto.updatedAt = new Date();
+    // A coluna 'updatedAt' é atualizada automaticamente pelo TypeORM (@UpdateDateColumn)
+    // então não precisamos definir manualmente.
 
     // Prepara o payload para atualização, tratando companyId separadamente
     const { companyId, ...restOfDto } = updateUserDto;
@@ -159,5 +165,15 @@ export class UsersService {
     };
 
     return this.create(adminData);
+  }
+
+  async activate(id: string): Promise<User> {
+    await this.usersRepository.update(id, { active: true });
+    return this.findOne(id);
+  }
+
+  async deactivate(id: string): Promise<User> {
+    await this.usersRepository.update(id, { active: false });
+    return this.findOne(id);
   }
 }

@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsEnum, IsUUID, MinLength, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsEnum, IsUUID, MinLength, IsOptional, IsBoolean } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
@@ -21,9 +21,17 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  phoneNumber?: string;
+  name?: string; // Adicionando name como opcional, já que a entidade User o possui
+
+  @IsString()
+  @IsOptional()
+  phone?: string; // Renomeado de phoneNumber para phone para consistência com a entidade
 
   @IsString()
   @IsOptional()
   avatarUrl?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  active?: boolean;
 }

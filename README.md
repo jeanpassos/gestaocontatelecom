@@ -80,10 +80,10 @@ pip install -r requirements.txt
 1. **Crie o arquivo `.env` no `telefonia-backend`:**
 ```env
 # Configuração do Banco de Dados
-DB_HOST=201.91.93.55
+DB_HOST=xxx
 DB_PORT=3306
-DB_USERNAME=telefonia
-DB_PASSWORD=ZHADyZKreJLjh6RM
+DB_USERNAME=xxx
+DB_PASSWORD=xxx
 DB_DATABASE=telefonia_db
 
 # JWT Secret
@@ -431,10 +431,10 @@ python -m pytest tests/
 **Backend (.env)**
 ```env
 # Banco de Dados
-DB_HOST=201.91.93.55
+DB_HOST=xxx
 DB_PORT=3306
-DB_USERNAME=telefonia
-DB_PASSWORD=ZHADyZKreJLjh6RM
+DB_USERNAME=xxx
+DB_PASSWORD=xxx
 DB_DATABASE=telefonia_db
 
 # Autenticação

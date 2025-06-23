@@ -12,7 +12,8 @@ async function bootstrap() {
       'http://localhost:3002',
       'http://127.0.0.1:3001',
       'http://127.0.0.1:3002',
-      'http://127.0.0.1:50148' // URL do proxy do browser preview
+      'http://127.0.0.1:50148', // URL do proxy do browser preview
+      'http://127.0.0.1:52871'  // URL atual do proxy do preview
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,

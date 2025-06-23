@@ -62,7 +62,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     corporateName?: string;
     tradeName?: string;
     cnpj?: string;
-    type?: 'headquarters' | 'branch';
+    type?: 'matriz' | 'filial';
     provider?: 'vivo' | 'claro' | 'tim' | 'oi' | 'other';
     segment?: 'comercio' | 'industria' | 'servicos' | 'tecnologia' | 'saude' | 'educacao' | 'financeiro' | 'agronegocio' | 'construcao' | 'transporte' | 'alimentacao' | 'entretenimento' | 'turismo' | 'outros';
     segments?: string[];

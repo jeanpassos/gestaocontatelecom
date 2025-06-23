@@ -22,7 +22,7 @@ interface MockCompany {
   corporateName: string;
   tradeName: string;
   cnpj: string;
-  type?: 'headquarters' | 'branch';
+  type?: 'matriz' | 'filial';
   provider?: 'vivo' | 'claro' | 'tim' | 'oi' | 'other';
   contractDate?: string;
   renewalDate?: string;
@@ -162,7 +162,7 @@ export const generateMockCompanies = (count: number): MockCompany[] => {
     };
     
     // Gerar tipos aleatórios e operadoras
-    const types: Array<'headquarters' | 'branch'> = ['headquarters', 'branch'];
+    const types: Array<'matriz' | 'filial'> = ['matriz', 'filial'];
     const providers: Array<'vivo' | 'claro' | 'tim' | 'oi' | 'other'> = ['vivo', 'claro', 'tim', 'oi', 'other'];
     
     // Gerar endereço estruturado

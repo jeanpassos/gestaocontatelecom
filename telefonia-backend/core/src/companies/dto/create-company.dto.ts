@@ -11,9 +11,11 @@ export class CreateCompanyDto {
   corporateName: string;
 
   // phoneLines foi movido para Contract
-  // @IsArray()
-  // @IsOptional()
-  // phoneLines?: string[];
+  // Restaurando phoneLines para manter compatibilidade com frontend
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  phoneLines?: string[];
 
   @IsObject()
   @IsOptional()
@@ -34,24 +36,18 @@ export class CreateCompanyDto {
   @IsOptional()
   type?: 'headquarters' | 'branch';
 
-  // telephonyProviderId foi movido para Contract
-  // @IsString()
-  // @IsOptional()
-  // @IsUUID()
-  // telephonyProviderId?: string; 
+  // Restaurando contractDate para compatibilidade com frontend
+  @IsString()
+  @IsOptional()
+  contractDate?: string;
+
+  // Restaurando renewalDate para compatibilidade com frontend  
+  @IsString()
+  @IsOptional()
+  renewalDate?: string;
 
   // provider de internet continua sendo uma string dentro de assets.internet.provider
   // não precisa de campo separado no DTO principal se estiver dentro de assets.
-
-  // contractDate foi movido para Contract
-  // @IsString()
-  // @IsOptional()
-  // contractDate?: string;
-
-  // renewalDate foi movido para Contract
-  // @IsString()
-  // @IsOptional()
-  // renewalDate?: string;
 
   @IsObject()
   @IsOptional()
@@ -78,8 +74,14 @@ export class CreateCompanyDto {
   @IsOptional()
   assignedUsers?: string[];
 
-  // observation foi movido para Contract
-  // @IsString()
-  // @IsOptional()
-  // observation?: string;
+  // Adicionando telephonyProviderId para persistir operadora de telefonia
+  @IsString()
+  @IsOptional()
+  @IsUUID()
+  telephonyProviderId?: string;
+
+  // Descomentando observation para permitir salvamento de observações
+  @IsString()
+  @IsOptional()
+  observation?: string;
 }

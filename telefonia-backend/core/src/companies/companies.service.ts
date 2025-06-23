@@ -5,8 +5,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { Company } from './entities/company.entity';
 import { Segment } from '../segments/entities/segment.entity';
-// Provider não é mais injetado ou usado diretamente aqui para 'telephonyProvider'
-// import { Provider } from '../providers/entities/provider.entity'; 
+import { Provider } from '../providers/entities/provider.entity';
 import { validateCNPJ } from '../utils/validators';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -18,9 +17,8 @@ export class CompaniesService {
     private companiesRepository: Repository<Company>,
     @InjectRepository(Segment)
     private segmentsRepository: Repository<Segment>,
-    // providersRepository não é mais necessário aqui para 'telephonyProvider'
-    // @InjectRepository(Provider) 
-    // private providersRepository: Repository<Provider>,
+    @InjectRepository(Provider)
+    private providersRepository: Repository<Provider>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -37,8 +35,6 @@ export class CompaniesService {
       }
       return response.data;
     } catch (error) {
-      // console.error('Erro ao consultar CNPJ ' + cleanedCNPJ + ' na ReceitaWS:', error.response?.data || error.message);
-      // Simplificando o log de erro para evitar problemas com template string aqui também, se houver
       console.error('Erro ao consultar CNPJ na ReceitaWS:', error.message);
       if (error instanceof NotFoundException) {
         throw error;
@@ -60,7 +56,7 @@ export class CompaniesService {
       throw new BadRequestException('Já existe uma empresa com este CNPJ');
     }
 
-    const { segmentId, ...companyData } = createCompanyDto; // Removido telephonyProviderId
+    const { segmentId, telephonyProviderId, ...companyData } = createCompanyDto;
     const company = this.companiesRepository.create(companyData);
 
     if (segmentId) {
@@ -71,33 +67,73 @@ export class CompaniesService {
       company.segment = segment;
     }
 
-    // Bloco do telephonyProviderId removido
+    if (telephonyProviderId) {
+      company.telephonyProviderId = telephonyProviderId;
+    }
     
     return this.companiesRepository.save(company);
   }
 
   async findAll(): Promise<Company[]> {
-    // Removido 'telephonyProvider' das relações. 
-    // A relação com contratos (e por sua vez, provedores) será carregada separadamente se necessário.
-    return this.companiesRepository.find({ relations: ['segment', 'users', 'contracts'] }); 
+    return this.companiesRepository
+      .createQueryBuilder('company')
+      .leftJoinAndSelect('company.segment', 'segment')
+      .leftJoin('provider', 'telephonyProvider', 'company.telephony_provider_id = telephonyProvider.id')
+      .addSelect([
+        'telephonyProvider.id',
+        'telephonyProvider.name',
+        'telephonyProvider.type'
+      ])
+      .leftJoinAndSelect('company.users', 'users')
+      .getMany()
+      .then(companies => {
+        return companies.map(company => ({
+          ...company,
+          telephonyProvider: company.telephonyProviderId 
+            ? companies.find(c => c.id === company.id)?.['telephonyProvider'] || null
+            : null
+        }));
+      });
   }
 
   async findOne(id: string): Promise<Company> {
-    const company = await this.companiesRepository.findOne({ 
-      where: { id },
-      // Removido 'telephonyProvider'. Adicionado 'contracts' para carregar os contratos associados.
-      relations: ['users', 'segment', 'contracts', 'contracts.provider'] 
-    });
-    
+    const company = await this.companiesRepository
+      .createQueryBuilder('company')
+      .leftJoinAndSelect('company.segment', 'segment')
+      .leftJoin('provider', 'telephonyProvider', 'company.telephony_provider_id = telephonyProvider.id')
+      .addSelect([
+        'telephonyProvider.id',
+        'telephonyProvider.name',
+        'telephonyProvider.type'
+      ])
+      .leftJoinAndSelect('company.users', 'users')
+      .where('company.id = :id', { id })
+      .getOne();
+
     if (!company) {
-      throw new NotFoundException('Empresa com ID ' + id + ' não encontrada');
+      throw new NotFoundException(`Empresa com ID ${id} não encontrada`);
     }
-    
+
+    if (company.telephonyProviderId) {
+      const provider = await this.providersRepository.findOne({
+        where: { id: company.telephonyProviderId }
+      });
+      (company as any).telephonyProvider = provider;
+    }
+
     return company;
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
+    console.log(' CompaniesService.update INICIADO');
+    console.log(' ID recebido:', id);
+    console.log(' Dados recebidos:', JSON.stringify(updateCompanyDto, null, 2));
+    
     const companyToUpdate = await this.findOne(id); // findOne já carrega o segmento
+    
+    console.log(' Empresa encontrada para atualizar:');
+    console.log(' - ID:', companyToUpdate.id);
+    console.log(' - Nome:', companyToUpdate.corporateName);
     
     if (updateCompanyDto.cnpj && updateCompanyDto.cnpj !== companyToUpdate.cnpj) {
       if (!validateCNPJ(updateCompanyDto.cnpj)) {
@@ -115,7 +151,14 @@ export class CompaniesService {
 
     const { segmentId, ...companyData } = updateCompanyDto; // Removido telephonyProviderId
     
+    console.log(' Dados a serem aplicados:', JSON.stringify(companyData, null, 2));
+    
     Object.assign(companyToUpdate, companyData);
+
+    console.log(' Empresa após Object.assign:');
+    console.log(' - ID:', companyToUpdate.id);
+    console.log(' - Nome:', companyToUpdate.corporateName);
+    console.log(' - Assets:', JSON.stringify(companyToUpdate.assets, null, 2));
 
     if (segmentId !== undefined) { // Permite definir como null para remover
       if (segmentId === null) {
@@ -124,24 +167,27 @@ export class CompaniesService {
         const segment = await this.segmentsRepository.findOneBy({ id: segmentId });
         if (!segment) {
           console.warn(`Segmento com ID ${segmentId} não encontrado durante a atualização. Segmento não alterado.`);
-          // Não altera companyToUpdate.segment se o novo ID for inválido e não for null
         } else {
           companyToUpdate.segment = segment;
         }
       }
     }
 
-    // Bloco do telephonyProviderId removido
-
-    await this.companiesRepository.save(companyToUpdate);
-    return this.findOne(id);
+    console.log(' ANTES de salvar no banco:');
+    console.log(' - ID da empresa:', companyToUpdate.id);
+    console.log(' - Nome da empresa:', companyToUpdate.corporateName);
+    
+    const savedCompany = await this.companiesRepository.save(companyToUpdate);
+    
+    console.log(' APÓS salvar no banco:');
+    console.log(' - ID retornado pelo save:', savedCompany.id);
+    console.log(' - Nome retornado pelo save:', savedCompany.corporateName);
+    
+    return savedCompany;
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.companiesRepository.delete(id);
-    
-    if (result.affected === 0) {
-      throw new NotFoundException('Empresa com ID ' + id + ' não encontrada');
-    }
+    const company = await this.findOne(id);
+    await this.companiesRepository.remove(company);
   }
 }

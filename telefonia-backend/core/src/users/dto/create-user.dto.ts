@@ -16,8 +16,8 @@ export class CreateUserDto {
   role: UserRole;
 
   @IsUUID()
-  @IsNotEmpty()
-  companyId: string;
+  @IsOptional()
+  companyId?: string;
 
   @IsString()
   @IsOptional()

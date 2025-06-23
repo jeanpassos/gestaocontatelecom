@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CompaniesModule } from './companies/companies.module';
@@ -9,24 +10,17 @@ import { AuthModule } from './auth/auth.module';
 import { SegmentsModule } from './segments/segments.module';
 import { ProvidersModule } from './providers/providers.module'; // Import ProvidersModule
 import { ContractsModule } from './contracts/contracts.module'; // Import ContractsModule
+import { typeOrmConfig } from './config/typeorm.config';
 
 @Module({
   imports: [
-    // Configuração do PostgreSQL sem sincronização de tabelas
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: '201.91.93.55',
-      port: 5432,
-      username: 'telefonia',
-      password: '6T8Cs8dbNWAN',
-      database: 'telefonia',
-      schema: 'telefonia', // Usar o esquema telefonia que criamos
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false, // Desativado pois o usuário não tem permissão para criar tabelas
-      ssl: false,
-      autoLoadEntities: true,
-      logging: true
+    // Configuração do módulo de configuração para carregar variáveis de ambiente
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
+    // Configuração do MariaDB usando as variáveis de ambiente
+    TypeOrmModule.forRoot(typeOrmConfig),
     CompaniesModule,
     UsersModule,
     InvoicesModule,

@@ -12,10 +12,10 @@ export class Segment {
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   value: string;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
   @OneToMany(() => Company, company => company.segment)

@@ -26,7 +26,7 @@ export class User {
   })
   role: UserRole;
 
-  @ManyToOne(() => Company, company => company.users)
+  @ManyToOne(() => Company, company => company.users, { nullable: true })
   @JoinColumn({ name: 'company_id' })
   company: Company;
 
@@ -39,10 +39,10 @@ export class User {
   @Column({ name: 'avatar_url', nullable: true })
   avatarUrl: string;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
   @Column({ type: 'boolean', default: true, name: 'active' })

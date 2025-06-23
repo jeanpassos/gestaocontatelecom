@@ -25,7 +25,7 @@ export class Contract {
   @Column({ type: 'varchar', length: 100, nullable: true, name: 'contract_number' })
   contractNumber: string | null;
 
-  @Column('jsonb', { name: 'phone_lines', nullable: true })
+  @Column({ type: 'json', name: 'phone_lines', nullable: true })
   phoneLines: string[] | null;
 
   @Column({ type: 'date', nullable: true, name: 'contract_date' })
@@ -48,9 +48,9 @@ export class Contract {
   @Column({ type: 'text', nullable: true, name: 'observation' })
   observation: string | null;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 }

@@ -71,7 +71,7 @@ const formatCNPJ = (cnpj: string) => {
   if (!cnpj) return '-';
   
   cnpj = cnpj.replace(/[^0-9]/g, '');
-  return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+  return cnpj.replace(/^(\d{2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})$/, '$1.$2.$3/$4-$5');
 };
 
 // Função para calcular o tempo restante até a renovação
@@ -133,8 +133,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
   const [formData, setFormData] = useState<Partial<Company>>({
     cnpj: '',
     corporateName: '',
-    type: 'branch',
-    telephonyProvider: undefined, // Alterado de provider para telephonyProvider (objeto)
+    type: 'filial',
     segment: undefined,
     contractDate: '',
     renewalDate: '',
@@ -240,10 +239,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     if (open) {
       loadUsers();
       loadSegments();
-      loadTelephonyProviders();
       loadInternetProviders();
     }
-  }, [open, loadUsers, loadSegments, loadTelephonyProviders, loadInternetProviders]);
+  }, [open, loadUsers, loadSegments, loadInternetProviders]);
   
   // Função para consultar CNPJ e preencher dados automaticamente
   const handleCNPJConsult = async () => {
@@ -336,8 +334,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
       setFormData({
         cnpj: company.cnpj,
         corporateName: company.corporateName,
-        type: company.type || 'branch',
-        telephonyProvider: company.telephonyProvider, // Usar telephonyProvider
+        type: company.type || 'filial',
         segment: company.segment,
         contractDate: company.contractDate || '',
         renewalDate: company.renewalDate || '',
@@ -362,7 +359,14 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           mobileDevices: validatedMobileDevices,
           internet: {
             plan: company.assets?.internet?.plan || '',
-            speed: company.assets?.internet?.speed || ''
+            provider: company.assets?.internet?.provider,
+            speed: company.assets?.internet?.speed || '',
+            hasFixedIp: company.assets?.internet?.hasFixedIp || false,
+            ipAddress: company.assets?.internet?.ipAddress || '',
+            subnetMask: company.assets?.internet?.subnetMask || '',
+            gateway: company.assets?.internet?.gateway || '',
+            dns: company.assets?.internet?.dns || '',
+            ipNotes: company.assets?.internet?.ipNotes || ''
           },
           tv: {
             plan: company.assets?.tv?.plan || '',
@@ -425,14 +429,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     if (name === 'cnpj') {
       // Formatar o CNPJ enquanto digita
       const numbersOnly = value.replace(/[^\d]/g, '');
-      const formattedCNPJ = numbersOnly.replace(/(\d{2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/, (_, p1, p2, p3, p4, p5) => {
-        let result = p1;
-        if (p2) result += '.' + p2;
-        if (p3) result += '.' + p3;
-        if (p4) result += '/' + p4;
-        if (p5) result += '-' + p5;
-        return result;
-      });
+      const formattedCNPJ = numbersOnly.replace(/(\d{2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})$/, '$1.$2.$3/$4-$5');
       
       setFormData(prev => ({ ...prev, [name]: formattedCNPJ }));
       
@@ -572,40 +569,13 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
               fullWidth
               label="Tipo"
               name="type"
-              value={formData.type || 'branch'}
+              value={formData.type || 'filial'}
               onChange={handleChange}
               disabled={loading}
               sx={{ mb: 2 }}
             >
-              <MenuItem value="headquarters">Matriz</MenuItem>
-              <MenuItem value="branch">Filial</MenuItem>
-            </TextField>
-          </Grid>
-          
-          {/* Operadora */}
-          <Grid item xs={12} md={3}>
-            <TextField
-              select
-              fullWidth
-              label="Operadora de Telefonia"
-              name="telephonyProvider" // Nome do campo no formData
-              value={formData.telephonyProvider ? (formData.telephonyProvider as Provider).id : ''}
-              onChange={(e) => {
-                const providerId = e.target.value;
-                const selectedProvider = telephonyProviders.find(p => p.id === providerId);
-                setFormData(prev => ({ ...prev, telephonyProvider: selectedProvider || null }));
-              }}
-              disabled={loading || loadingTelephonyProviders}
-              sx={{ mb: 2 }}
-            >
-              <MenuItem value=""><em>Selecione</em></MenuItem>
-              {loadingTelephonyProviders ? (
-                <MenuItem disabled>Carregando...</MenuItem>
-              ) : (
-                telephonyProviders.map((p) => (
-                  <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
-                ))
-              )}
+              <MenuItem value="matriz">Matriz</MenuItem>
+              <MenuItem value="filial">Filial</MenuItem>
             </TextField>
           </Grid>
           
@@ -672,7 +642,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Seção de Endereço */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Endereço
             </Typography>
           </Grid>
@@ -770,7 +740,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Seção de Gestor */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Gestor
             </Typography>
           </Grid>
@@ -841,7 +811,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Seção de Internet */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Internet
             </Typography>
           </Grid>
@@ -860,7 +830,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
             >
               <MenuItem value=""><em>Selecione</em></MenuItem>
               {loadingInternetProviders ? (
-                <MenuItem disabled>Carregando...</MenuItem>
+                <MenuItem disabled>
+                  <CircularProgress size={20} sx={{ mr: 1 }} /> Carregando...
+                </MenuItem>
               ) : (
                 internetProviders.map((p) => (
                   <MenuItem key={p.id} value={p.value}>{p.name}</MenuItem> // Salva o 'value'
@@ -999,7 +971,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Seção de TV */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               TV
             </Typography>
           </Grid>
@@ -1032,7 +1004,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Seção de Usuários Associados */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Usuários com Acesso
             </Typography>
             <FormControl fullWidth sx={{ mb: 3 }}>
@@ -1094,7 +1066,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           
           {/* Campo de Observações */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Observações
             </Typography>
             <TextField
@@ -1111,69 +1083,130 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           </Grid>
           
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
-              Linhas Telefônicas
-            </Typography>
-            <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                label="Nova Linha"
-                value={newPhoneLine}
-                onChange={(e) => setNewPhoneLine(e.target.value)}
-                disabled={loading}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PhoneIcon color="action" />
-                    </InputAdornment>
-                  )
-                }}
-              />
-              <Button
-                variant="contained"
-                onClick={addPhoneLine}
-                disabled={!newPhoneLine.trim() || loading}
-                sx={{ minWidth: '120px' }}
-              >
-                Adicionar
-              </Button>
-            </Box>
-            
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-              {(formData.phoneLines || []).length === 0 ? (
-                <Typography variant="body2" color="text.secondary">
-                  Nenhuma linha telefônica cadastrada.
-                </Typography>
-              ) : (
-                (formData.phoneLines || []).map((line, index) => (
-                  <Chip
-                    key={index}
-                    label={line}
-                    onDelete={() => removePhoneLine(index)}
-                    disabled={loading}
-                    icon={<PhoneIcon />}
-                    sx={{
-                      borderRadius: '8px',
-                      fontWeight: 500,
-                      py: 0.5,
-                      backgroundColor: theme.palette.primary.light,
-                      color: theme.palette.primary.contrastText,
-                      '& .MuiChip-deleteIcon': {
+            <Card 
+              sx={{ 
+                p: 3, 
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                height: '100%'
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                Operadora do Cliente
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: 2
+              }}>
+                {(company && company.assets?.internet?.provider) ? (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    p: 2,
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                    border: '1px solid rgba(25, 118, 210, 0.1)'
+                  }}>
+                    <Box sx={{ 
+                      width: 40, 
+                      height: 40, 
+                      borderRadius: '50%', 
+                      backgroundColor: 'primary.main',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        {company.assets.internet.provider.charAt(0).toUpperCase()}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {company.assets.internet.provider}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Operadora de Internet/Telefonia
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 3,
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                    border: '1px dashed rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Operadora não informada
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Card 
+              sx={{ 
+                p: 3, 
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                height: '100%'
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                Linhas Telefônicas
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: 2,
+                maxHeight: '400px',
+                overflowY: 'auto',
+                pr: 1
+              }}>
+                {(formData.phoneLines || []).length > 0 ? (
+                  (formData.phoneLines || []).map((line, index) => (
+                    <Chip
+                      key={index}
+                      label={line}
+                      onDelete={() => removePhoneLine(index)}
+                      disabled={loading}
+                      icon={<PhoneIcon />}
+                      sx={{
+                        borderRadius: '8px',
+                        fontWeight: 500,
+                        py: 0.5,
+                        backgroundColor: theme.palette.primary.light,
                         color: theme.palette.primary.contrastText,
-                        '&:hover': {
-                          color: theme.palette.error.light
+                        '& .MuiChip-deleteIcon': {
+                          color: theme.palette.primary.contrastText,
+                          '&:hover': {
+                            color: theme.palette.error.light
+                          }
                         }
-                      }
-                    }}
-                  />
-                ))
-              )}
-            </Box>
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    Nenhuma linha telefônica cadastrada.
+                  </Typography>
+                )}
+              </Box>
+            </Card>
           </Grid>
           
           {/* Seção de Aparelhos Celulares */}
           <Grid item xs={12}>
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Aparelhos Celulares
             </Typography>
             
@@ -1255,7 +1288,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                           <MenuItem value="">
                             <em>Nenhuma linha associada</em>
                           </MenuItem>
-                          {formData.phoneLines?.map((line, lineIndex) => (
+                          {(formData.phoneLines || []).map((line, lineIndex) => (
                             <MenuItem key={lineIndex} value={lineIndex}>
                               {line}
                             </MenuItem>
@@ -1476,30 +1509,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                     Tipo
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {company.type === 'headquarters' ? 'Matriz' : company.type === 'branch' ? 'Filial' : 'Não especificado'}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Operadora
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {company.telephonyProvider ? (
-                      <Chip 
-                        size="small" 
-                        label={company.telephonyProvider.name}
-                        // A estilização baseada no valor pode precisar ser ajustada
-                        // se os valores de company.telephonyProvider.value forem diferentes
-                        // dos antigos valores de company.provider (ex: 'vivo' vs 'uuid_da_vivo')
-                        // Por ora, manterei uma estilização genérica ou baseada no nome.
-                        sx={{
-                          backgroundColor: theme.palette.grey[200], // Estilo genérico
-                          color: theme.palette.text.primary,
-                          border: `1px solid ${theme.palette.grey[400]}`
-                        }}
-                      />
-                    ) : 'Não especificada'}
+                    {company.type === 'matriz' ? 'Matriz' : company.type === 'filial' ? 'Filial' : 'Não especificado'}
                   </Typography>
                 </Box>
                 
@@ -1720,6 +1730,75 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                     {company.updatedAt ? new Date(company.updatedAt).toLocaleDateString('pt-BR') : 'N/A'}
                   </Typography>
                 </Box>
+              </Box>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Card 
+              sx={{ 
+                p: 3, 
+                borderRadius: '16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                height: '100%'
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                Operadora do Cliente
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: 2
+              }}>
+                {(company && company.assets?.internet?.provider) ? (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    p: 2,
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                    border: '1px solid rgba(25, 118, 210, 0.1)'
+                  }}>
+                    <Box sx={{ 
+                      width: 40, 
+                      height: 40, 
+                      borderRadius: '50%', 
+                      backgroundColor: 'primary.main',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 2
+                    }}>
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        {company.assets.internet.provider.charAt(0).toUpperCase()}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {company.assets.internet.provider}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Operadora de Internet/Telefonia
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 3,
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                    border: '1px dashed rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Operadora não informada
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Card>
           </Grid>
@@ -1984,6 +2063,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
               </Box>
             </Card>
           </Grid>
+          
+
           
           {/* Cards de Internet e TV */}
           <Grid item xs={12} md={6}>
@@ -2467,7 +2548,6 @@ const CompaniesPage: React.FC = () => {
                 <TableCell sx={{ fontWeight: 600 }}>CNPJ</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Razão Social</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Tipo</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Operadora</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Segmento</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Responsável</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Linhas</TableCell>
@@ -2506,41 +2586,25 @@ const CompaniesPage: React.FC = () => {
                     <TableCell>
                       {company.type ? (
                         <Chip
-                          label={company.type === 'headquarters' ? 'Matriz' : 'Filial'}
+                          label={company.type === 'matriz' ? 'Matriz' : 'Filial'}
                           size="small"
                           sx={{
                             borderRadius: '8px',
-                            backgroundColor: company.type === 'headquarters' ? 'rgba(76, 175, 80, 0.08)' : 'rgba(33, 150, 243, 0.08)',
-                            color: company.type === 'headquarters' ? '#4CAF50' : '#2196F3',
-                            border: company.type === 'headquarters' ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid rgba(33, 150, 243, 0.2)',
+                            backgroundColor: company.type === 'matriz' ? 'rgba(76, 175, 80, 0.08)' : 'rgba(33, 150, 243, 0.08)',
+                            color: company.type === 'matriz' ? '#4CAF50' : '#2196F3',
+                            border: company.type === 'matriz' ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid rgba(33, 150, 243, 0.2)',
                             fontWeight: 500,
                             '&:hover': {
-                              backgroundColor: company.type === 'headquarters' ? 'rgba(76, 175, 80, 0.12)' : 'rgba(33, 150, 243, 0.12)'
+                              backgroundColor: company.type === 'matriz' ? 'rgba(76, 175, 80, 0.12)' : 'rgba(33, 150, 243, 0.12)'
                             }
                           }}
                         />
                       ) : (
-                        <Typography variant="body2" color="text.secondary">-</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          -
+                        </Typography>
                       )}
                     </TableCell>
-                    <TableCell>
-                      {company.telephonyProvider ? (
-                        <Chip
-                          label={company.telephonyProvider.name} // Exibir o nome da operadora
-                          size="small"
-                          sx={{
-                            borderRadius: '8px',
-                            backgroundColor: theme.palette.grey[200], // Estilo genérico
-                            color: theme.palette.text.primary,
-                            border: `1px solid ${theme.palette.grey[400]}`,
-                            fontWeight: 500,
-                          }}
-                        />
-                      ) : (
-                        <Typography variant="body2" color="text.secondary">-</Typography>
-                      )}
-                    </TableCell>
-                    {/* Coluna de Segmento */}
                     <TableCell>
                       {company.segment ? (
                         <Chip
@@ -2558,7 +2622,9 @@ const CompaniesPage: React.FC = () => {
                           }}
                         />
                       ) : (
-                        <Typography variant="body2" color="text.secondary">-</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          -
+                        </Typography>
                       )}
                     </TableCell>
                     {/* Coluna de Responsável */}
@@ -2591,7 +2657,7 @@ const CompaniesPage: React.FC = () => {
                     <TableCell>
                       {(company.phoneLines || []).length > 0 ? (
                         <Chip
-                          label={`${company.phoneLines.length} linha${company.phoneLines.length > 1 ? 's' : ''}`}
+                          label={`${(company.phoneLines || []).length} linha${(company.phoneLines || []).length > 1 ? 's' : ''}`}
                           size="small"
                           icon={<PhoneIcon sx={{ color: '#6A5ACD' }} />}
                           sx={{
@@ -2617,7 +2683,7 @@ const CompaniesPage: React.FC = () => {
                       {(company.assets?.mobileDevices?.length ?? 0) > 0 ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                           <Chip
-                            label={`${company.assets?.mobileDevices?.length} aparelho${(company.assets?.mobileDevices?.length ?? 0) > 1 ? 's' : ''}`}
+                            label={`${(company.assets?.mobileDevices?.length ?? 0)} aparelho${(company.assets?.mobileDevices?.length ?? 0) > 1 ? 's' : ''}`}
                             size="small"
                             icon={<MobileIcon sx={{ color: '#E91E63' }} />}
                             sx={{
@@ -2634,7 +2700,7 @@ const CompaniesPage: React.FC = () => {
                           />
                           {company.assets?.mobileDevices?.some((device: any) => device.assignedTo) && (
                             <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
-                              {company.assets?.mobileDevices?.filter((device: any) => device.assignedTo).length} locado(s)
+                              {(company.assets?.mobileDevices?.filter((device: any) => device.assignedTo).length ?? 0)} locado(s)
                             </Typography>
                           )}
                         </Box>

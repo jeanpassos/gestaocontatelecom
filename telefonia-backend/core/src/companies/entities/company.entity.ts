@@ -17,11 +17,16 @@ export class Company {
   corporateName: string;
 
   // phoneLines foi movido para Contract
-  // @Column('jsonb', { name: 'phone_lines' })
-  // phoneLines: string[];
+  // Restaurando phoneLines para manter compatibilidade com frontend
+  @Column({ type: 'json', name: 'phone_lines', nullable: true })
+  phoneLines: string[] | null;
 
-  @Column('jsonb', { nullable: true })
+  @Column({ type: 'json', nullable: true })
   assets: Record<string, any> | null; // Permitir null
+
+  // Restaurando telephonyProviderId para persistir operadora
+  @Column({ type: 'varchar', length: 36, nullable: true, name: 'telephony_provider_id' })
+  telephonyProviderId: string | null;
 
   // telephonyProvider foi removido, a relação agora é via Contract
   // @ManyToOne(() => Provider, { nullable: true, eager: false }) // provider de telefonia
@@ -33,25 +38,25 @@ export class Company {
   @Column({ type: 'varchar', length: 50, nullable: true, name: 'type' })
   type: string | null; // 'headquarters' ou 'branch'
 
-  // contractDate foi movido para Contract
-  // @Column({ type: 'date', nullable: true, name: 'contract_date' })
-  // contractDate: string | null;
+  // Restaurando contractDate para compatibilidade com frontend
+  @Column({ type: 'date', nullable: true, name: 'contract_date' })
+  contractDate: string | null;
 
-  // renewalDate foi movido para Contract
-  // @Column({ type: 'date', nullable: true, name: 'renewal_date' })
-  // renewalDate: string | null;
+  // Restaurando renewalDate para compatibilidade com frontend
+  @Column({ type: 'date', nullable: true, name: 'renewal_date' })
+  renewalDate: string | null;
 
-  // observation foi movido para Contract
-  // @Column({ type: 'text', nullable: true, name: 'observation' })
-  // observation: string | null;
+  // Restaurando observation para persistência
+  @Column({ type: 'text', nullable: true, name: 'observation' })
+  observation: string | null;
   
   // address e manager podem ser JSONB ou colunas separadas.
   // Para simplificar, vou assumir que são JSONB por enquanto, como 'assets'.
   // Se forem colunas separadas, a entidade e migração precisariam de mais detalhes.
-  @Column('jsonb', { nullable: true, name: 'address' })
+  @Column({ type: 'json', nullable: true, name: 'address' })
   address: Record<string, any> | null;
 
-  @Column('jsonb', { nullable: true, name: 'manager' })
+  @Column({ type: 'json', nullable: true, name: 'manager' })
   manager: Record<string, any> | null;
 
   // assignedUsers é uma relação ou um array de IDs?
@@ -69,9 +74,9 @@ export class Company {
   @OneToMany(() => Contract, contract => contract.company)
   contracts: Contract[];
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 }

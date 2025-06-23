@@ -50,7 +50,7 @@ export class Invoice {
   @Column({ name: 'pdf_url', nullable: true })
   pdfUrl: string;
 
-  @Column('jsonb', { name: 'invoice_details', nullable: true })
+  @Column({ type: 'json', name: 'invoice_details', nullable: true })
   invoiceDetails: Record<string, any>;
 
   @ManyToOne(() => Company)

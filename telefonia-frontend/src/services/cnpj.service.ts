@@ -141,7 +141,7 @@ const CNPJService = {
       situacao: 'ATIVA',
       data_situacao: '',
       abertura: '',
-      tipo: company.type === 'headquarters' ? 'MATRIZ' : 'FILIAL',
+      tipo: company.type === 'matriz' ? 'MATRIZ' : 'FILIAL',
       capital_social: '',
       natureza_juridica: '',
       atividade_principal: [],

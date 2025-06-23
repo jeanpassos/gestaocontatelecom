@@ -7,7 +7,7 @@ export interface Company {
   id: string;
   cnpj: string;
   corporateName: string;
-  type?: 'headquarters' | 'branch'; // matriz ou filial
+  type?: 'matriz' | 'filial'; // matriz ou filial
   telephonyProvider?: Provider | null; // Alterado de provider para telephonyProvider
   segment?: Segment | string; 
   contractDate?: string; // data de contratação
@@ -68,6 +68,8 @@ export interface CompanyFilter {
 const CompanyService = {
   async getAll(filters?: CompanyFilter): Promise<Company[]> {
     try {
+      console.log('🔍 [DEBUG] CompanyService.getAll() - Iniciando chamada para backend');
+      
       const params = new URLSearchParams();
       
       if (filters?.search) {
@@ -84,9 +86,12 @@ const CompanyService = {
       });
       
       clearTimeout(timeoutId);
+      console.log('🔍 [DEBUG] CompanyService.getAll() - Resposta do backend:', response.data);
+      console.log('🔍 [DEBUG] Primeira empresa telephonyProvider:', response.data[0]?.telephonyProvider);
+      
       return response.data;
     } catch (error) {
-      console.error('Erro ao carregar empresas:', error);
+      console.error('❌ [DEBUG] CompanyService.getAll() - ERRO, usando mock:', error);
       // Retornar dados simulados em caso de erro
       return generateMockCompanies(10);
     }
@@ -216,6 +221,11 @@ const CompanyService = {
   
   async update(id: string, company: Partial<Company>): Promise<Company> {
     try {
+      // 🔍 DEBUG: Verificar qual ID está sendo enviado
+      console.log('🔍 CompanyService.update - ID recebido:', id);
+      console.log('🔍 CompanyService.update - Nome da empresa:', company.corporateName);
+      console.log('🔍 CompanyService.update - URL da requisição:', `/companies/${id}`);
+      
       // Limpar dados antes de enviar para evitar problemas de serialização
       const cleanedCompany = JSON.parse(JSON.stringify(company));
       
@@ -278,6 +288,11 @@ const CompanyService = {
       
       try {
         const response = await api.patch<Company>(`/companies/${id}`, simplifiedCompany);
+        
+        // 🔍 DEBUG: Verificar resposta do backend
+        console.log('✅ CompanyService.update - Resposta do backend:', response.data);
+        console.log('✅ CompanyService.update - ID da empresa retornada:', response.data.id);
+        
         return response.data;
       } catch (patchError: any) {
         // Se o erro for 500, tentar uma abordagem ainda mais simples

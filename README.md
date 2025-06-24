@@ -1,7 +1,7 @@
-# 📱 Sistema de Gestão de Contas de Telefonia
-**Versão 0.78** | Sistema para controle e gerenciamento de contas telefônicas empresariais
+# Sistema de Gestão de Contas de Telefonia
+**Versão 0.79.0** | Sistema para controle e gerenciamento de contas telefônicas empresariais
 
-![Versão](https://img.shields.io/badge/Versão-0.78-blue)
+![Versão](https://img.shields.io/badge/Versão-0.79.0-blue)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB)
 ![Backend](https://img.shields.io/badge/Backend-NestJS%20%2B%20TypeORM-E0234E)
@@ -9,21 +9,21 @@
 
 ---
 
-## 🎯 **Objetivo do Sistema**
+## Objetivo do Sistema
 
 Sistema completo para gerenciamento de contas de telefonia empresarial, permitindo:
-- 🏢 **Gestão de Empresas**: Cadastro completo com informações corporativas
-- 📞 **Controle de Linhas**: Monitoramento de linhas telefônicas e planos
-- 📱 **Gestão de Aparelhos**: Controle de dispositivos móveis e atribuições
-- 🌐 **Dados de Internet**: Configurações de rede e provedores
-- 📄 **Processamento de Faturas**: Extração automática de dados de PDFs
-- 👥 **Controle de Usuários**: Sistema de autenticação e permissões
+- Gestão de Empresas: Cadastro completo com informações corporativas
+- Controle de Linhas: Monitoramento de linhas telefônicas e planos
+- Gestão de Aparelhos: Controle de dispositivos móveis e atribuições
+- Dados de Internet: Configurações de rede e provedores
+- Processamento de Faturas: Extração automática de dados de PDFs
+- Controle de Usuários: Sistema de autenticação e permissões
 
 ---
 
-## 🏗️ **Arquitetura do Sistema**
+## Arquitetura do Sistema
 
-### **Microserviços Principais**
+### Microserviços Principais
 
 ```
 ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
@@ -37,35 +37,35 @@ Sistema completo para gerenciamento de contas de telefonia empresarial, permitin
 
 ---
 
-## 🚀 **Início Rápido**
+## Início Rápido
 
-### **Pré-requisitos**
-- **Node.js** >= 16.x
-- **Python** >= 3.8
-- **MariaDB** >= 10.6
-- **npm** ou **yarn**
+### Pré-requisitos
+- Node.js >= 16.x
+- Python >= 3.8
+- MariaDB >= 10.6
+- npm ou yarn
 
-### **Instalação**
+### Instalação
 
-1. **Clone o repositório:**
+1. Clone o repositório:
 ```bash
 git clone https://github.com/jeanpassos/contastelefonia.git
 cd contastelefonia
 ```
 
-2. **Configure o Backend:**
+2. Configure o Backend:
 ```bash
 cd telefonia-backend
 npm install
 ```
 
-3. **Configure o Frontend:**
+3. Configure o Frontend:
 ```bash
 cd telefonia-frontend
 npm install
 ```
 
-4. **Configure o PDF Service:**
+4. Configure o PDF Service:
 ```bash
 cd pdf-service
 python -m venv .venv
@@ -75,9 +75,9 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### **Configuração do Banco de Dados**
+### Configuração do Banco de Dados
 
-1. **Crie o arquivo `.env` no `telefonia-backend`:**
+1. Crie o arquivo `.env` no `telefonia-backend`:
 ```env
 # Configuração do Banco de Dados
 DB_HOST=xxx
@@ -94,48 +94,48 @@ PORT=3001
 NODE_ENV=development
 ```
 
-2. **Execute as migrações:**
+2. Execute as migrações:
 ```bash
 cd telefonia-backend
 node scripts/run-mariadb-migrations-safe.js
 ```
 
-### **Execução**
+### Execução
 
-**Inicie todos os serviços simultaneamente:**
+Inicie todos os serviços simultaneamente:
 
-1. **Backend (Terminal 1):**
+1. Backend (Terminal 1):
 ```bash
 cd telefonia-backend
 npm run start:dev
 ```
 
-2. **Frontend (Terminal 2):**
+2. Frontend (Terminal 2):
 ```bash
 cd telefonia-frontend
 npm start
 ```
 
-3. **PDF Service (Terminal 3):**
+3. PDF Service (Terminal 3):
 ```bash
 cd pdf-service
 python app.py
 ```
 
-**Sistema acessível em:**
+Sistema acessível em:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - PDF Service: http://localhost:5000
 
 ---
 
-## 📚 **Módulos e Funcionalidades**
+## Módulos e Funcionalidades
 
-### **📱 Frontend (React + TypeScript + MUI)**
+### Frontend (React + TypeScript + MUI)
 
-#### **Páginas Principais:**
-- **🏠 Dashboard**: Visão geral do sistema
-- **🏢 Empresas**: CRUD completo de empresas
+#### Páginas Principais:
+- Dashboard: Visão geral do sistema
+- Empresas: CRUD completo de empresas
   - Informações básicas (CNPJ, razão social, etc.)
   - Endereço completo
   - Dados do gestor responsável
@@ -143,16 +143,16 @@ python app.py
   - Linhas telefônicas
   - Aparelhos móveis e atribuições
   - TV e outros serviços
-- **👥 Usuários**: Gestão de usuários do sistema
-- **📄 Faturas**: Upload e processamento de PDFs
+- Usuários: Gestão de usuários do sistema
+- Faturas: Upload e processamento de PDFs
 
-#### **Componentes Reutilizáveis:**
-- **CompaniesPage**: Tela principal de gestão de empresas
-- **Modal de Detalhes**: Visualização completa da empresa
-- **Modal de Edição**: Formulário de edição com validações
-- **Cards de Informação**: Exibição organizada dos dados
+#### Componentes Reutilizáveis:
+- CompaniesPage: Tela principal de gestão de empresas
+- Modal de Detalhes: Visualização completa da empresa
+- Modal de Edição: Formulário de edição com validações
+- Cards de Informação: Exibição organizada dos dados
 
-#### **Tecnologias Utilizadas:**
+#### Tecnologias Utilizadas:
 ```json
 {
   "react": "^18.x",
@@ -167,33 +167,33 @@ python app.py
 }
 ```
 
-### **🔧 Backend (NestJS + TypeORM + MariaDB)**
+### Backend (NestJS + TypeORM + MariaDB)
 
-#### **Módulos Principais:**
+#### Módulos Principais:
 
-**🔐 Auth Module**
+Auth Module
 - JWT authentication
 - Login/logout
 - Proteção de rotas
 
-**🏢 Companies Module**
+Companies Module
 - CRUD de empresas
 - Relacionamentos com usuários
 - Upload de dados JSON complexos
 - Filtros e busca
 
-**👥 Users Module**
+Users Module
 - Gestão de usuários
 - Relacionamento com empresas
 - Controle de permissões
 
-**📊 Providers Module**
+Providers Module
 - Gestão de operadoras
 - Dados para formulários
 
-#### **Entidades do Banco:**
+#### Entidades do Banco:
 
-**🏢 Company**
+Company
 ```typescript
 {
   id: number;
@@ -213,7 +213,7 @@ python app.py
 }
 ```
 
-**👤 User**
+User
 ```typescript
 {
   id: number;
@@ -226,7 +226,7 @@ python app.py
 }
 ```
 
-**🏷️ Segment**
+Segment
 ```typescript
 {
   id: number;
@@ -236,7 +236,7 @@ python app.py
 }
 ```
 
-**📡 Provider**
+Provider
 ```typescript
 {
   id: number;
@@ -246,8 +246,7 @@ python app.py
 }
 ```
 
-#### **APIs Disponíveis:**
-
+#### APIs Disponíveis:
 ```typescript
 // Autenticação
 POST /auth/login
@@ -273,15 +272,15 @@ GET    /segments          // Listar segmentos
 GET    /providers         // Listar provedores
 ```
 
-### **📄 PDF Service (Flask + Python)**
+### PDF Service (Flask + Python)
 
-#### **Funcionalidades:**
-- **📤 Upload de PDFs**: Recebimento de arquivos via API
-- **🔍 Extração de Texto**: Usando pdfplumber e PyPDF2
-- **🖼️ OCR**: Processamento de imagens com pytesseract
-- **📊 Análise de Dados**: Extração de informações estruturadas
+#### Funcionalidades:
+- Upload de PDFs: Recebimento de arquivos via API
+- Extração de Texto: Usando pdfplumber e PyPDF2
+- OCR: Processamento de imagens com pytesseract
+- Análise de Dados: Extração de informações estruturadas
 
-#### **Dependências:**
+#### Dependências:
 ```python
 flask==2.3.3
 pdfplumber==0.9.0
@@ -292,13 +291,13 @@ Pillow==10.0.0
 
 ---
 
-## 🗄️ **Banco de Dados**
+## Banco de Dados
 
-### **Estrutura MariaDB**
+### Estrutura MariaDB
 
-#### **Tabelas Principais:**
+#### Tabelas Principais:
 
-**📋 company**
+company
 ```sql
 CREATE TABLE company (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -320,7 +319,7 @@ CREATE TABLE company (
 );
 ```
 
-**👤 user**
+user
 ```sql
 CREATE TABLE user (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -335,50 +334,50 @@ CREATE TABLE user (
 );
 ```
 
-### **Migrações Aplicadas:**
-1. **001**: Schema inicial (users, companies)
-2. **002**: Dados iniciais (admin user)
-3. **003**: Atualização schema user
-4. **004**: Criação tabela segment
-5. **007**: Coluna active em user
-6. **008**: Relacionamento segment em company
-7. **009**: Campos adicionais em company
-8. **010**: Criação tabela provider
-9. **011**: Dados iniciais providers
-10. **012**: Relacionamento provider em company
-11. **013**: Criação tabela contract
-12. **014**: Coluna phone_lines em company
-13. **015**: Colunas contract_date e renewal_date
+### Migrações Aplicadas:
+1. Schema inicial (users, companies)
+2. Dados iniciais (admin user)
+3. Atualização schema user
+4. Criação tabela segment
+5. Coluna active em user
+6. Relacionamento segment em company
+7. Campos adicionais em company
+8. Criação tabela provider
+9. Dados iniciais providers
+10. Relacionamento provider em company
+11. Criação tabela contract
+12. Coluna phone_lines em company
+13. Colunas contract_date e renewal_date
 
 ---
 
-## 📱 **Fluxo de Uso**
+## Fluxo de Uso
 
-### **1. Login no Sistema**
+### 1. Login no Sistema
 ```
-👤 Usuário → 🔐 Autenticação → 🏠 Dashboard
-```
-
-### **2. Cadastro de Empresa**
-```
-📝 Formulário → ✅ Validação → 💾 Persistência → 🔄 Atualização da Lista
+Usuário → Autenticação → Dashboard
 ```
 
-### **3. Gestão de Linhas**
+### 2. Cadastro de Empresa
 ```
-📞 Cadastro → 📱 Atribuição a Aparelhos → 👥 Vínculo com Usuários
+Formulário → Validação → Persistência → Atualização da Lista
 ```
 
-### **4. Processamento de Faturas**
+### 3. Gestão de Linhas
 ```
-📄 Upload PDF → 🔍 Extração → 📊 Análise → 💾 Armazenamento
+Cadastro → Atribuição a Aparelhos → Vínculo com Usuários
+```
+
+### 4. Processamento de Faturas
+```
+Upload PDF → Extração → Análise → Armazenamento
 ```
 
 ---
 
-## 🧪 **Comandos de Desenvolvimento**
+## Comandos de Desenvolvimento
 
-### **Backend**
+### Backend
 ```bash
 # Desenvolvimento
 npm run start:dev
@@ -395,7 +394,7 @@ npm run test:e2e
 npm run lint
 ```
 
-### **Frontend**
+### Frontend
 ```bash
 # Desenvolvimento
 npm start
@@ -410,7 +409,7 @@ npm test
 npm run analyze
 ```
 
-### **PDF Service**
+### PDF Service
 ```bash
 # Desenvolvimento
 python app.py
@@ -424,11 +423,11 @@ python -m pytest tests/
 
 ---
 
-## 🔧 **Configurações Importantes**
+## Configurações Importantes
 
-### **Variáveis de Ambiente**
+### Variáveis de Ambiente
 
-**Backend (.env)**
+Backend (.env)
 ```env
 # Banco de Dados
 DB_HOST=xxx
@@ -449,7 +448,7 @@ NODE_ENV=development
 CORS_ORIGIN=http://localhost:3000
 ```
 
-**Frontend (.env)**
+Frontend (.env)
 ```env
 REACT_APP_API_URL=http://localhost:3001
 REACT_APP_PDF_SERVICE_URL=http://localhost:5000
@@ -457,105 +456,117 @@ REACT_APP_PDF_SERVICE_URL=http://localhost:5000
 
 ---
 
-## 📊 **Estado Atual (v0.78)**
+## Estado Atual (v0.79.0)
 
-### **✅ Funcionalidades Implementadas**
-- ✅ Sistema de autenticação JWT
-- ✅ CRUD completo de empresas
-- ✅ Gestão de usuários
-- ✅ Integração com MariaDB
-- ✅ Interface responsiva (MUI)
-- ✅ Upload e visualização de dados
-- ✅ Relacionamentos entre entidades
-- ✅ Validações de formulário
-- ✅ Feedback visual (snackbars)
-- ✅ Modais de edição e visualização
-- ✅ Sistema de segmentos e provedores
-- ✅ Gestão de linhas telefônicas
-- ✅ Controle de aparelhos móveis
-- ✅ Configurações de rede
-- ✅ Dados de contratos
-- ✅ Exibição da operadora do cliente
+### Funcionalidades Implementadas
+- Sistema de autenticação JWT
+- CRUD completo de empresas
+- Gestão de usuários
+- Integração com MariaDB
+- Interface responsiva (MUI)
+- Upload e visualização de dados
+- Relacionamentos entre entidades
+- Validações de formulário
+- Feedback visual (snackbars)
+- Modais de edição e visualização
+- Sistema de segmentos e provedores
+- Gestão de linhas telefônicas
+- Controle de aparelhos móveis
+- Configurações de rede
+- Dados de contratos
+- Exibição da operadora do cliente
 
-### **🚧 Em Desenvolvimento**
-- 🚧 Dashboard com métricas
-- 🚧 Relatórios avançados
-- 🚧 Integração completa PDF Service
-- 🚧 Sistema de notificações
-- 🚧 Backup automatizado
-- 🚧 Logs de auditoria
+### Em Desenvolvimento
+- Dashboard com métricas
+- Relatórios avançados
+- Integração completa PDF Service
+- Sistema de notificações
+- Backup automatizado
+- Logs de auditoria
 
-### **📋 Próximas Versões**
-- 📋 Sistema de faturas
-- 📋 Controle de custos
-- 📋 API para integrações
-- 📋 App mobile
-- 📋 Relatórios em PDF
-- 📋 Dashboard executivo
+### Próximas Versões
+- Sistema de faturas
+- Controle de custos
+- API para integrações
+- App mobile
+- Relatórios em PDF
+- Dashboard executivo
 
 ---
 
-## 🐛 **Problemas Conhecidos**
+## Problemas Conhecidos
 
-### **Críticos (🔴)**
+### Críticos (🔴)
 - Nenhum identificado
 
-### **Menores (🟡)**
+### Menores (🟡)
 - Performance em listas muito grandes
 - Validação de CNPJ poderia ser mais robusta
 - Alguns warnings do TypeScript em desenvolvimento
 
 ---
 
-## 🤝 **Contribuição**
+## Contribuição
 
-### **Como Contribuir**
+### Como Contribuir
 1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-### **Padrões de Código**
-- **Frontend**: ESLint + Prettier
-- **Backend**: ESLint + Prettier
-- **Python**: PEP8 + Black
+### Padrões de Código
+- Frontend: ESLint + Prettier
+- Backend: ESLint + Prettier
+- Python: PEP8 + Black
 
 ---
 
-## 📞 **Suporte e Contato**
+## Suporte e Contato
 
-- **Desenvolvedor**: Jean Passos
-- **GitHub**: [@jeanpassos](https://github.com/jeanpassos)
-- **Repositório**: [contastelefonia](https://github.com/jeanpassos/contastelefonia)
-
----
-
-## 📝 **Changelog**
-
-### **v0.78 (2024-12-22)**
-- ✅ Migração para MariaDB concluída
-- ✅ Sistema de operadoras implementado
-- ✅ Grid de operadora na visualização
-- ✅ Correções de TypeScript
-- ✅ Melhorias na interface
-
-### **v0.75 (2024-12-20)**
-- ✅ Implementação do sistema de segmentos
-- ✅ Adição de campos de contrato
-- ✅ Sistema de gestão de usuários
-
-### **v0.70 (2024-12-15)**
-- ✅ Base do sistema criada
-- ✅ Autenticação implementada
-- ✅ CRUD de empresas básico
+- Desenvolvedor: Jean Passos
+- GitHub: [@jeanpassos](https://github.com/jeanpassos)
+- Repositório: [contastelefonia](https://github.com/jeanpassos/contastelefonia)
 
 ---
 
-## 📄 **Licença**
+## Changelog
+
+### **v0.79.0 (2025-06-23)** 🚀
+- ✅ **Contratos vencidos dinâmicos**: Sistema agora exibe "Vencido há X dias" em tempo real
+- ✅ **Operadora na tabela**: Coluna "Operadora" exibe corretamente via `assets.internet.provider`
+- ✅ **Cálculo automático**: Atualização dinâmica de dias vencidos a cada minuto
+- ✅ **Fallback inteligente**: Prioriza `telephonyProvider.name` e usa `assets.internet.provider`
+- ✅ **Interface otimizada**: Chips estilizados com hover effects e cores consistentes
+- ✅ **Performance melhorada**: Função `calculateRenewalTime` otimizada
+- ✅ **Scripts de teste**: Validação de dados do banco (`test-company-provider.js`)
+- ✅ **Migrações MariaDB**: Suporte a alocações de telefone (migração 016)
+- ✅ **Correções TypeScript**: Entidade Company com relação telephonyProvider
+- 📋 **CHANGELOG.md**: Documentação completa das alterações criada
+
+### v0.78 (2024-12-22)
+- Migração para MariaDB concluída
+- Sistema de operadoras implementado
+- Grid de operadora na visualização
+- Correções de TypeScript
+- Melhorias na interface
+
+### v0.75 (2024-12-20)
+- Implementação do sistema de segmentos
+- Adição de campos de contrato
+- Sistema de gestão de usuários
+
+### v0.70 (2024-12-15)
+- Base do sistema criada
+- Autenticação implementada
+- CRUD de empresas básico
+
+---
+
+## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
-**🚀 Sistema em constante evolução - Versão 0.78 | Dezembro 2024**
+Sistema em constante evolução - Versão 0.79.0 | Junho 2025

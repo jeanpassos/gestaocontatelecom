@@ -17,6 +17,17 @@ export class CreateCompanyDto {
   @IsString({ each: true })
   phoneLines?: string[];
 
+  // Alocações de linhas telefônicas para usuários
+  @IsOptional()
+  @IsArray()
+  phoneAllocations?: Array<{
+    phoneLineIndex: number;
+    phoneLine: string;
+    userId: string;
+    userName: string;
+    allocatedDate: string;
+  }>;
+
   @IsObject()
   @IsOptional()
   assets?: Record<string, any>;

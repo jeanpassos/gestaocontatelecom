@@ -1,8 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Segment } from '../../segments/entities/segment.entity';
-// Provider não é mais diretamente relacionado aqui, será via Contract
-// import { Provider } from '../../providers/entities/provider.entity'; 
+import { Provider } from '../../providers/entities/provider.entity';
 import { Contract } from '../../contracts/entities/contract.entity'; // Import Contract
 
 @Entity('company') // Especificar nome da tabela se necessário, ex: 'companies'
@@ -21,6 +20,16 @@ export class Company {
   @Column({ type: 'json', name: 'phone_lines', nullable: true })
   phoneLines: string[] | null;
 
+  // Alocações de linhas telefônicas para usuários
+  @Column({ type: 'json', name: 'phone_allocations', nullable: true })
+  phoneAllocations: Array<{
+    phoneLineIndex: number;
+    phoneLine: string;
+    userId: string;
+    userName: string;
+    allocatedDate: string;
+  }> | null;
+
   @Column({ type: 'json', nullable: true })
   assets: Record<string, any> | null; // Permitir null
 
@@ -28,10 +37,10 @@ export class Company {
   @Column({ type: 'varchar', length: 36, nullable: true, name: 'telephony_provider_id' })
   telephonyProviderId: string | null;
 
-  // telephonyProvider foi removido, a relação agora é via Contract
-  // @ManyToOne(() => Provider, { nullable: true, eager: false }) // provider de telefonia
-  // @JoinColumn({ name: 'telephony_provider_id' })
-  // telephonyProvider: Provider | null;
+  // Relação com Provider de telefonia restaurada
+  @ManyToOne(() => Provider, { nullable: true, eager: false })
+  @JoinColumn({ name: 'telephony_provider_id' })
+  telephonyProvider: Provider | null;
 
   // O provider de internet continua sendo uma string dentro de assets.internet.provider
 

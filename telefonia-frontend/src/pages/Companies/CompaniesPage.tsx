@@ -75,19 +75,21 @@ const formatCNPJ = (cnpj: string) => {
 };
 
 // Função para calcular o tempo restante até a renovação
-const calculateRenewalTime = (renewalDate: string | undefined) => {
-  if (!renewalDate) return { days: null, months: null, isExpired: false };
+const calculateRenewalTime = (renewalDate: string | undefined, currentDate: Date = new Date()) => {
+  if (!renewalDate) return { days: null, months: null, isExpired: false, expiredDays: null };
   
-  const today = new Date();
+  const today = currentDate;
   const renewal = new Date(renewalDate);
   
-  // Verificar se a data de renovação já passou
-  if (renewal < today) {
-    return { days: null, months: null, isExpired: true };
-  }
-  
   // Calcular a diferença em milissegundos
-  const diffTime = Math.abs(renewal.getTime() - today.getTime());
+  const diffTime = renewal.getTime() - today.getTime();
+  
+  // Verificar se a data de renovação já passou
+  if (diffTime < 0) {
+    // Contrato vencido - calcular quantos dias está vencido
+    const expiredDays = Math.ceil(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
+    return { days: null, months: null, isExpired: true, expiredDays };
+  }
   
   // Converter para dias
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -98,7 +100,8 @@ const calculateRenewalTime = (renewalDate: string | undefined) => {
   return { 
     days: diffDays, 
     months: diffMonths,
-    isExpired: false
+    isExpired: false,
+    expiredDays: null
   };
 };
 
@@ -172,7 +175,8 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
       }
     },
     observation: '',
-    assignedUsers: []
+    assignedUsers: [],
+    phoneAllocations: []
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [newPhoneLine, setNewPhoneLine] = useState('');
@@ -374,7 +378,8 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           }
         },
         observation: company.observation || '',
-        assignedUsers: company.assignedUsers || []
+        assignedUsers: company.assignedUsers || [],
+        phoneAllocations: company.phoneAllocations || []
       });
     } else {
       setFormData({
@@ -384,7 +389,8 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
         assets: {
           mobileDevices: []
         },
-        assignedUsers: []
+        assignedUsers: [],
+        phoneAllocations: []
       });
     }
   }, [company, open, loadUsers]);
@@ -955,7 +961,8 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 <TextField
                   fullWidth
                   multiline
-                  rows={2}
+                  minRows={2}
+                  maxRows={6}
                   label="Observações de IP"
                   name="assets.internet.ipNotes"
                   value={formData.assets?.internet?.ipNotes || ''}
@@ -963,7 +970,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                   disabled={loading}
                   sx={{ mb: 2 }}
                   placeholder="Registre aqui IPs adicionais ou outras configurações especiais de rede"
-                  helperText="Utilize este campo para registrar múltiplos IPs ou informações adicionais de configuração de rede"
+                  helperText="Utilize este campo para registrar múltiplos IPs ou informações adicionais de configuração de rede. O campo se expande automaticamente."
                 />
               </Grid>
             </>
@@ -1173,28 +1180,105 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 pr: 1
               }}>
                 {(formData.phoneLines || []).length > 0 ? (
-                  (formData.phoneLines || []).map((line, index) => (
-                    <Chip
-                      key={index}
-                      label={line}
-                      onDelete={() => removePhoneLine(index)}
-                      disabled={loading}
-                      icon={<PhoneIcon />}
-                      sx={{
+                  (formData.phoneLines || []).map((line, index) => {
+                    // Verificar se esta linha está alocada para algum usuário
+                    const allocatedUser = formData.phoneAllocations?.find((allocation: any) => allocation.phoneLineIndex === index);
+                    
+                    return (
+                      <Card key={index} sx={{
+                        p: 2,
                         borderRadius: '8px',
-                        fontWeight: 500,
-                        py: 0.5,
-                        backgroundColor: theme.palette.primary.light,
-                        color: theme.palette.primary.contrastText,
-                        '& .MuiChip-deleteIcon': {
-                          color: theme.palette.primary.contrastText,
-                          '&:hover': {
-                            color: theme.palette.error.light
-                          }
-                        }
-                      }}
-                    />
-                  ))
+                        backgroundColor: allocatedUser ? 'rgba(76, 175, 80, 0.05)' : 'rgba(25, 118, 210, 0.05)',
+                        border: allocatedUser ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid rgba(25, 118, 210, 0.2)',
+                      }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                          <Chip
+                            label={line}
+                            onDelete={() => removePhoneLine(index)}
+                            disabled={loading}
+                            icon={<PhoneIcon />}
+                            sx={{
+                              borderRadius: '8px',
+                              fontWeight: 500,
+                              py: 0.5,
+                              backgroundColor: allocatedUser ? '#4CAF50' : theme.palette.primary.main,
+                              color: 'white',
+                              '& .MuiChip-deleteIcon': {
+                                color: 'white',
+                                '&:hover': {
+                                  color: theme.palette.error.light
+                                }
+                              }
+                            }}
+                          />
+                          {allocatedUser && (
+                            <Chip
+                              size="small"
+                              label={`Alocado: ${allocatedUser.userName}`}
+                              sx={{
+                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                color: '#4CAF50',
+                                fontWeight: 500
+                              }}
+                            />
+                          )}
+                        </Box>
+                        
+                        {/* Campo para alocar usuário */}
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          label="Alocar para usuário"
+                          value={allocatedUser?.userId || ''}
+                          onChange={(e) => {
+                            const userId = e.target.value;
+                            const userName = userId ? users.find(u => u.id === userId)?.name || 'Usuário' : '';
+                            
+                            setFormData(prev => {
+                              const currentAllocations = prev.phoneAllocations || [];
+                              // Remover alocação anterior desta linha
+                              const filteredAllocations = currentAllocations.filter((allocation: any) => allocation.phoneLineIndex !== index);
+                              
+                              // Adicionar nova alocação se usuário selecionado
+                              const newAllocations = userId ? [
+                                ...filteredAllocations,
+                                {
+                                  phoneLineIndex: index,
+                                  phoneLine: line,
+                                  userId,
+                                  userName,
+                                  allocatedDate: new Date().toISOString()
+                                }
+                              ] : filteredAllocations;
+                              
+                              return {
+                                ...prev,
+                                phoneAllocations: newAllocations
+                              };
+                            });
+                          }}
+                          disabled={loading || loadingUsers}
+                          sx={{ mt: 1 }}
+                        >
+                          <MenuItem value="">
+                            <em>Não alocado</em>
+                          </MenuItem>
+                          {users.map((user) => (
+                            <MenuItem key={user.id} value={user.id}>
+                              {user.name || user.email} ({user.role === 'admin' ? 'Administrador' : user.role === 'manager' ? 'Gerente' : 'Usuário'})
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        
+                        {allocatedUser && (
+                          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                            Alocado em: {new Date(allocatedUser.allocatedDate).toLocaleDateString('pt-BR')}
+                          </Typography>
+                        )}
+                      </Card>
+                    );
+                  })
                 ) : (
                   <Typography variant="body2" color="text.secondary">
                     Nenhuma linha telefônica cadastrada.
@@ -1552,19 +1636,31 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                 </Box>
                 
                 {/* Observações */}
-                {company.observation && (
+                {company.observation && company.observation.trim() && (
                   <>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                       Observações
                     </Typography>
                     <Box sx={{ 
-                      backgroundColor: 'rgba(255, 243, 224, 0.5)', 
-                      p: 1.5, 
-                      borderRadius: 1, 
-                      border: '1px solid rgba(255, 167, 38, 0.2)'
+                      backgroundColor: 'rgba(255, 243, 224, 0.7)', 
+                      p: 2, 
+                      borderRadius: 2, 
+                      border: '1px solid rgba(255, 167, 38, 0.3)',
+                      minHeight: '60px',
+                      width: '100%',
+                      overflow: 'visible',
+                      wordBreak: 'break-word',
+                      whiteSpace: 'pre-wrap'
                     }}>
-                      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'text.primary',
+                          lineHeight: 1.6,
+                          fontSize: '0.9rem'
+                        }}
+                      >
                         {company.observation}
                       </Typography>
                     </Box>
@@ -1715,15 +1811,6 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">
-                    Cadastrado em
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {company.createdAt ? new Date(company.createdAt).toLocaleDateString('pt-BR') : 'N/A'}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" color="text.secondary">
                     Última atualização
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -1830,8 +1917,13 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                     const associatedDevice = company.assets?.mobileDevices?.find((device: any) => device.phoneLine === line);
                     const isAssigned = !!associatedDevice && !!associatedDevice.assignedTo;
                     
-                    // Cor laranja para itens locados
+                    // Verificar se esta linha está alocada para algum usuário
+                    const allocation = company.phoneAllocations?.find((alloc: any) => alloc.phoneLineIndex === index || alloc.phoneLine === line);
+                    const isAllocated = !!allocation;
+                    
+                    // Cor laranja para itens locados, azul para alocados
                     const ORANGE_COLOR = '#ED6C02';
+                    const BLUE_COLOR = '#1976d2';
                     
                     return (
                       <Box 
@@ -1842,18 +1934,18 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                           width: '100%',
                           p: 1.5,
                           borderRadius: '8px',
-                          backgroundColor: isAssigned ? 'rgba(237, 108, 2, 0.15)' : 'rgba(0, 128, 105, 0.05)',
-                          border: isAssigned ? '1px solid rgba(237, 108, 2, 0.3)' : '1px solid rgba(0, 128, 105, 0.1)',
-                          boxShadow: isAssigned ? '0 2px 4px rgba(237, 108, 2, 0.15)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+                          backgroundColor: isAssigned ? 'rgba(237, 108, 2, 0.15)' : isAllocated ? 'rgba(25, 118, 210, 0.1)' : 'rgba(0, 128, 105, 0.05)',
+                          border: isAssigned ? '1px solid rgba(237, 108, 2, 0.3)' : isAllocated ? '1px solid rgba(25, 118, 210, 0.3)' : '1px solid rgba(0, 128, 105, 0.1)',
+                          boxShadow: isAssigned ? '0 2px 4px rgba(237, 108, 2, 0.15)' : isAllocated ? '0 2px 4px rgba(25, 118, 210, 0.15)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
                           position: 'relative',
-                          '&::before': isAssigned ? {
+                          '&::before': (isAssigned || isAllocated) ? {
                             content: '""',
                             position: 'absolute',
                             left: 0,
                             top: 0,
                             bottom: 0,
                             width: '4px',
-                            backgroundColor: '#ED6C02',
+                            backgroundColor: isAssigned ? '#ED6C02' : '#1976d2',
                             borderRadius: '4px 0 0 4px'
                           } : {}
                         }}
@@ -1862,19 +1954,29 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                           {/* Ícone e número da linha */}
                           <Box sx={{ display: 'flex', alignItems: 'center', minWidth: '180px' }}>
                             <PhoneIcon sx={{ 
-                              color: isAssigned ? ORANGE_COLOR : '#008069',
+                              color: isAssigned ? ORANGE_COLOR : isAllocated ? BLUE_COLOR : '#008069',
                               mr: 1,
                               fontSize: '1.2rem'
                             }} />
                             <Typography variant="subtitle2" sx={{ 
                               fontWeight: 600,
-                              color: isAssigned ? ORANGE_COLOR : '#008069'
+                              color: isAssigned ? ORANGE_COLOR : isAllocated ? BLUE_COLOR : '#008069'
                             }}>
                               {line}
                             </Typography>
                           </Box>
                           
-                          {/* Informações do aparelho e pessoa */}
+                          {/* Informações de alocação de usuário */}
+                          {isAllocated && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: '180px' }}>
+                              <PersonIcon fontSize="small" sx={{ color: BLUE_COLOR, opacity: 0.8 }} />
+                              <Typography variant="body2">
+                                {allocation.userName}
+                              </Typography>
+                            </Box>
+                          )}
+                          
+                          {/* Informações do aparelho e pessoa (sistema antigo) */}
                           {isAssigned ? (
                             <>
                               {/* Modelo do aparelho */}
@@ -1919,17 +2021,65 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
                                 />
                               </Box>
                             </>
-                          ) : (
-                            <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                              Sem aparelho associado
-                            </Typography>
+                          ) : isAllocated && allocation.allocatedDate && (
+                            /* Data de alocação para usuário */
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: '150px' }}>
+                              <CalendarTodayIcon fontSize="small" sx={{ color: BLUE_COLOR, opacity: 0.8 }} />
+                              <Typography variant="body2">
+                                {new Date(allocation.allocatedDate).toLocaleDateString()}
+                              </Typography>
+                            </Box>
                           )}
+                          
+                          {/* Chip de status */}
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', ml: 'auto' }}>
+                            {isAssigned ? (
+                              <Chip
+                                size="small"
+                                label="Locado"
+                                sx={{ 
+                                  height: 24,
+                                  fontSize: '0.75rem',
+                                  backgroundColor: '#ED6C02',
+                                  color: 'white',
+                                  fontWeight: 600,
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                }}
+                              />
+                            ) : isAllocated ? (
+                              <Chip
+                                size="small"
+                                label="Alocado"
+                                sx={{ 
+                                  height: 24,
+                                  fontSize: '0.75rem',
+                                  backgroundColor: '#1976d2',
+                                  color: 'white',
+                                  fontWeight: 600,
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                }}
+                              />
+                            ) : (
+                              <Chip
+                                size="small"
+                                label="Disponível"
+                                sx={{ 
+                                  height: 24,
+                                  fontSize: '0.75rem',
+                                  backgroundColor: '#008069',
+                                  color: 'white',
+                                  fontWeight: 600,
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                }}
+                              />
+                            )}
+                          </Box>
                         </Box>
                       </Box>
                     );
                   })
                 ) : (
-                  <Typography variant="body2" color="text.secondary" sx={{ width: '100%' }}>
+                  <Typography variant="body2" color="text.secondary">
                     Nenhuma linha telefônica cadastrada.
                   </Typography>
                 )}
@@ -2063,8 +2213,6 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
               </Box>
             </Card>
           </Grid>
-          
-
           
           {/* Cards de Internet e TV */}
           <Grid item xs={12} md={6}>
@@ -2313,31 +2461,42 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
 
 // Página Principal de Empresas
 const CompaniesPage: React.FC = () => {
-  const theme = useTheme();
-  const { user } = useAuth();
-  const { enqueueSnackbar } = useSnackbar();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [segments, setSegments] = useState<Segment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingSegments, setLoadingSegments] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Modais
+  const [currentTime, setCurrentTime] = useState(new Date()); // Estado para forçar re-renderização
+
+  // Estados para modais
   const [companyModal, setCompanyModal] = useState<{
     open: boolean;
     company?: Company;
   }>({ open: false });
+
   const [detailModal, setDetailModal] = useState<{
     open: boolean;
     company?: Company;
   }>({ open: false });
-  const [deleteConfirm, setDeleteConfirm] = useState<{
+
+  const [deleteModal, setDeleteModal] = useState<{
     open: boolean;
     company?: Company;
   }>({ open: false });
-  const [saveLoading, setSaveLoading] = useState(false);
-  
+
+  const { user } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
+
+  // Hook para atualizar o tempo a cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Atualiza a cada 60 segundos (1 minuto)
+
+    // Limpar o interval quando o componente for desmontado
+    return () => clearInterval(interval);
+  }, []);
+
   // Carregar empresas
   const loadCompanies = async () => {
     setLoading(true);
@@ -2356,23 +2515,9 @@ const CompaniesPage: React.FC = () => {
     }
   };
   
-  // Carregar segmentos
-  const loadSegmentsData = async () => {
-    setLoadingSegments(true);
-    try {
-      const data = await SegmentService.getAll();
-      setSegments(data);
-    } catch (err: any) {
-      console.error('Erro ao carregar segmentos:', err);
-    } finally {
-      setLoadingSegments(false);
-    }
-  };
-
   // Carregar empresas e segmentos quando a página carregar
   useEffect(() => {
     loadCompanies();
-    loadSegmentsData();
   }, []);
   
   // Buscar empresas quando o termo de busca mudar
@@ -2383,7 +2528,6 @@ const CompaniesPage: React.FC = () => {
   // Funções de CRUD
   const handleCreateOrUpdate = async (companyData: Partial<Company>) => {
     setSaveLoading(true);
-    
     try {
       // Não precisamos mais preparar os dados aqui, pois isso é feito no serviço
       // Apenas enviar os dados diretamente para o serviço
@@ -2405,20 +2549,6 @@ const CompaniesPage: React.FC = () => {
       loadCompanies();
     } catch (err: any) {
       console.error('Erro ao salvar empresa:', err);
-      
-      // Tratamento especial para erros de rede
-      if (err.message === 'Network Error') {
-        enqueueSnackbar('Erro de conexão com o servidor. Os dados foram salvos localmente.', { 
-          variant: 'warning',
-          autoHideDuration: 5000
-        });
-        
-        // Mesmo com erro de rede, fechamos o modal para simular sucesso
-        setCompanyModal({ open: false });
-        loadCompanies();
-        return;
-      }
-      
       enqueueSnackbar('Erro ao salvar empresa: ' + (err.message || 'Erro desconhecido'), { variant: 'error' });
     } finally {
       setSaveLoading(false);
@@ -2426,20 +2556,16 @@ const CompaniesPage: React.FC = () => {
   };
   
   const handleDelete = async () => {
-    if (!deleteConfirm.company) return;
-    
-    setSaveLoading(true);
+    if (!deleteModal.company) return;
     
     try {
-      await CompanyService.delete(deleteConfirm.company.id);
+      await CompanyService.delete(deleteModal.company.id);
       enqueueSnackbar('Empresa excluída com sucesso!', { variant: 'success' });
-      setDeleteConfirm({ open: false });
+      setDeleteModal({ open: false });
       loadCompanies();
     } catch (err: any) {
       console.error('Erro ao excluir empresa:', err);
       enqueueSnackbar('Erro ao excluir empresa: ' + (err.message || 'Erro desconhecido'), { variant: 'error' });
-    } finally {
-      setSaveLoading(false);
     }
   };
   
@@ -2545,30 +2671,31 @@ const CompaniesPage: React.FC = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
-                <TableCell sx={{ fontWeight: 600 }}>CNPJ</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Razão Social</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>CNPJ</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Tipo</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Segmento</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Responsável</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Operadora</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Linhas</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Aparelho celular</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Aparelho Celular</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Internet</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>TV</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Contrato</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Renovação</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Criado em</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 600 }}>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={13} align="center" sx={{ py: 5 }}>
+                  <TableCell colSpan={12} align="center" sx={{ py: 5 }}>
                     <CircularProgress size={40} />
                   </TableCell>
                 </TableRow>
               ) : companies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={13} align="center" sx={{ py: 5 }}>
+                  <TableCell colSpan={12} align="center" sx={{ py: 5 }}>
                     <Typography variant="body1" color="text.secondary">
                       Nenhuma empresa encontrada.
                     </Typography>
@@ -2581,8 +2708,8 @@ const CompaniesPage: React.FC = () => {
                       backgroundColor: 'rgba(0, 0, 0, 0.02)' 
                     } 
                   }}>
-                    <TableCell>{formatCNPJ(company.cnpj)}</TableCell>
-                    <TableCell sx={{ fontWeight: 500 }}>{company.corporateName}</TableCell>
+                    <TableCell>{company.corporateName}</TableCell>
+                    <TableCell sx={{ fontWeight: 500 }}>{formatCNPJ(company.cnpj)}</TableCell>
                     <TableCell>
                       {company.type ? (
                         <Chip
@@ -2653,6 +2780,40 @@ const CompaniesPage: React.FC = () => {
                           Administradores
                         </Typography>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        // Priorizar telephonyProvider (relação), senão usar assets.internet.provider
+                        const providerName = company.telephonyProvider?.name || 
+                                             (typeof company.telephonyProvider === 'string' ? company.telephonyProvider : null) ||
+                                             company.assets?.internet?.provider;
+                        
+                        if (providerName) {
+                          return (
+                            <Chip
+                              label={providerName.charAt(0).toUpperCase() + providerName.slice(1)}
+                              size="small"
+                              icon={<PhoneIcon sx={{ color: '#FF9800' }} />}
+                              sx={{
+                                borderRadius: '8px',
+                                backgroundColor: 'rgba(255, 152, 0, 0.08)',
+                                color: '#FF9800',
+                                border: '1px solid rgba(255, 152, 0, 0.2)',
+                                fontWeight: 500,
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 152, 0, 0.12)'
+                                }
+                              }}
+                            />
+                          );
+                        } else {
+                          return (
+                            <Typography variant="body2" color="text.secondary">
+                              -
+                            </Typography>
+                          );
+                        }
+                      })()}
                     </TableCell>
                     <TableCell>
                       {(company.phoneLines || []).length > 0 ? (
@@ -2763,16 +2924,42 @@ const CompaniesPage: React.FC = () => {
                       )}
                     </TableCell>
                     
+                    {/* Coluna de Contrato */}
+                    <TableCell>
+                      {company.contractDate ? (
+                        <Chip
+                          label={new Date(company.contractDate).toLocaleDateString('pt-BR')}
+                          size="small"
+                          icon={<CalendarTodayIcon sx={{ color: '#2196F3' }} />}
+                          sx={{
+                            borderRadius: '8px',
+                            backgroundColor: 'rgba(33, 150, 243, 0.08)',
+                            color: '#2196F3',
+                            border: '1px solid rgba(33, 150, 243, 0.2)',
+                            fontWeight: 500,
+                            '&:hover': {
+                              backgroundColor: 'rgba(33, 150, 243, 0.12)'
+                            },
+                            transition: 'all 0.2s ease-in-out'
+                          }}
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          Não informado
+                        </Typography>
+                      )}
+                    </TableCell>
+                    
                     {/* Coluna de Renovação */}
                     <TableCell>
                       {company.renewalDate ? (
                         (() => {
-                          const renewal = calculateRenewalTime(company.renewalDate);
+                          const renewal = calculateRenewalTime(company.renewalDate, currentTime);
                           
                           if (renewal.isExpired) {
                             return (
                               <Chip
-                                label="Contrato vencido"
+                                label={`Vencido há ${renewal.expiredDays} dias`}
                                 size="small"
                                 sx={{
                                   borderRadius: '8px',
@@ -2828,11 +3015,6 @@ const CompaniesPage: React.FC = () => {
                       )}
                     </TableCell>
                     
-                    <TableCell>
-                      {company.createdAt
-                        ? new Date(company.createdAt).toLocaleDateString('pt-BR')
-                        : 'N/A'}
-                    </TableCell>
                     <TableCell align="right">
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
                         {/* Azul para Visualizar - representa visibilidade, informação */}
@@ -2871,7 +3053,7 @@ const CompaniesPage: React.FC = () => {
                               backgroundColor: 'rgba(211, 47, 47, 0.08)', 
                               '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.12)' } 
                             }}
-                            onClick={() => setDeleteConfirm({ open: true, company })}
+                            onClick={() => setDeleteModal({ open: true, company })}
                           >
                             <DeleteIcon fontSize="small" sx={{ color: '#D32F2F' }} />
                           </IconButton>
@@ -2904,13 +3086,13 @@ const CompaniesPage: React.FC = () => {
       
       {/* Modal de Confirmação de Exclusão */}
       <Dialog
-        open={deleteConfirm.open}
-        onClose={() => saveLoading ? null : setDeleteConfirm({ open: false })}
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false })}
       >
         <DialogTitle>Confirmar Exclusão</DialogTitle>
         <DialogContent>
           <Typography variant="body1">
-            Tem certeza que deseja excluir a empresa <strong>{deleteConfirm.company?.corporateName}</strong>?
+            Tem certeza que deseja excluir a empresa <strong>{deleteModal.company?.corporateName}</strong>?
           </Typography>
           <Typography variant="body2" color="error" sx={{ mt: 2 }}>
             Esta ação não pode ser desfeita e todos os dados associados serão removidos.
@@ -2918,8 +3100,7 @@ const CompaniesPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setDeleteConfirm({ open: false })}
-            disabled={saveLoading}
+            onClick={() => setDeleteModal({ open: false })}
           >
             Cancelar
           </Button>
@@ -2927,10 +3108,8 @@ const CompaniesPage: React.FC = () => {
             variant="contained"
             color="error"
             onClick={handleDelete}
-            disabled={saveLoading}
-            startIcon={saveLoading ? <CircularProgress size={20} /> : null}
           >
-            {saveLoading ? 'Excluindo...' : 'Excluir'}
+            Excluir
           </Button>
         </DialogActions>
       </Dialog>

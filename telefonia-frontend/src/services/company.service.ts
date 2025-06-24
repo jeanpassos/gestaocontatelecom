@@ -29,6 +29,13 @@ export interface Company {
     hasWhatsapp?: boolean;
   };
   phoneLines: string[];
+  phoneAllocations?: Array<{
+    phoneLineIndex: number;
+    phoneLine: string;
+    userId: string;
+    userName: string;
+    allocatedDate: string;
+  }>;
   assets: {
     mobileDevices?: Array<{
       model?: string;
@@ -119,6 +126,7 @@ const CompanyService = {
         cnpj: cleanedCompany.cnpj,
         corporateName: cleanedCompany.corporateName,
         phoneLines: cleanedCompany.phoneLines || [],
+        phoneAllocations: cleanedCompany.phoneAllocations || [],
         type: cleanedCompany.type,
         telephonyProviderId: typeof cleanedCompany.telephonyProvider === 'object' && cleanedCompany.telephonyProvider?.id 
           ? cleanedCompany.telephonyProvider.id 
@@ -241,6 +249,7 @@ const CompanyService = {
         cnpj: cleanedCompany.cnpj,
         corporateName: cleanedCompany.corporateName,
         phoneLines: cleanedCompany.phoneLines || [],
+        phoneAllocations: cleanedCompany.phoneAllocations || [],
         type: cleanedCompany.type,
         telephonyProviderId: typeof cleanedCompany.telephonyProvider === 'object' && cleanedCompany.telephonyProvider?.id 
           ? cleanedCompany.telephonyProvider.id 

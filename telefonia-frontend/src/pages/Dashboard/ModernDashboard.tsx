@@ -308,7 +308,7 @@ const ModernDashboard: React.FC = () => {
   // Menu no estilo WhatsApp
   const menuItems = [
     { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard', notifications: 0 },
-    { icon: <BusinessIcon />, label: 'Empresas', path: '/companies', notifications: 2 },
+    { icon: <BusinessIcon />, label: 'Contratos', path: '/companies', notifications: 2 },
     { icon: <ReceiptIcon />, label: 'Faturas', path: '/invoices', notifications: 5 },
     { icon: <PeopleIcon />, label: 'Usuários', path: '/users', notifications: 0 },
     { icon: <SettingsIcon />, label: 'Configurações', path: '/settings', notifications: 0 },
@@ -541,7 +541,7 @@ const ModernDashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={3}>
               <StatCard
                 icon={<BusinessIcon />}
-                title="Empresas"
+                title="Contratos"
                 value={stats.totalCompanies}
                 change={0}
                 color="info"
@@ -648,7 +648,7 @@ const ModernDashboard: React.FC = () => {
               </Paper>
             </Grid>
             
-            {/* Empresas */}
+            {/* Contratos */}
             <Grid item xs={12} md={6}>
               <Paper 
                 elevation={0}
@@ -667,7 +667,7 @@ const ModernDashboard: React.FC = () => {
                   mb: 3
                 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Empresas
+                    Contratos
                   </Typography>
                   <IconButton size="small">
                     <MoreIcon />

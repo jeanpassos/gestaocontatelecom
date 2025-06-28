@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 
 // Configuração da API para o backend NestJS
 // Usar o endereço IP completo em vez de localhost para evitar problemas de conexão
-const API_URL = 'http://127.0.0.1:3000';
+export const API_URL = 'http://127.0.0.1:3000';
 
 // Criação da instância do axios com configurações base
 const api = axios.create({

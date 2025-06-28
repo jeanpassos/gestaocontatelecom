@@ -237,14 +237,14 @@ const RolesTab: React.FC = () => {
           <List disablePadding>
             <PermissionItem name="Visualizar Dashboard" admin={true} manager={true} consultant={true} user={true} />
             <PermissionItem name="Gerenciar Usuários" admin={true} manager={false} consultant={false} user={false} />
-            <PermissionItem name="Gerenciar Empresas" admin={true} manager={true} consultant={true} user={false} />
+            <PermissionItem name="Gerenciar Contratos" admin={true} manager={true} consultant={true} user={false} />
             <PermissionItem name="Visualizar Faturas" admin={true} manager={true} consultant={true} user={true} />
             <PermissionItem name="Criar/Editar Faturas" admin={true} manager={true} consultant={false} user={false} />
             <PermissionItem name="Excluir Faturas" admin={true} manager={false} consultant={false} user={false} />
             <PermissionItem name="Upload de Faturas" admin={true} manager={true} consultant={true} user={true} />
             <PermissionItem name="Gerar Relatórios" admin={true} manager={true} consultant={false} user={false} />
             <PermissionItem name="Configurações do Sistema" admin={true} manager={false} consultant={false} user={false} />
-            <PermissionItem name="Visualizar Todas as Empresas" admin={true} manager={true} consultant={true} user={false} />
+            <PermissionItem name="Visualizar Todos os Contratos" admin={true} manager={true} consultant={true} user={false} />
             <PermissionItem name="Processar Pagamentos" admin={true} manager={true} consultant={false} user={false} />
             <PermissionItem name="Gerenciar Documentos" admin={true} manager={true} consultant={true} user={false} />
             <PermissionItem name="Acompanhar Novos Clientes" admin={true} manager={true} consultant={true} user={false} />

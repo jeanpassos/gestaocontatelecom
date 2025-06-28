@@ -122,7 +122,7 @@ const DashboardWithMenu: React.FC = () => {
 
   const navigationItems = [
     { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-    { text: 'Empresas', path: '/companies', icon: <BusinessIcon /> },
+    { text: 'Contratos', path: '/companies', icon: <BusinessIcon /> },
     { text: 'Faturas', path: '/invoices', icon: <ReceiptIcon /> },
     { text: 'Usuários', path: '/users', icon: <PeopleIcon /> },
     { text: 'Configurações', path: '/settings', icon: <SettingsIcon /> },
@@ -275,10 +275,10 @@ const DashboardWithMenu: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* Card de Empresas */}
+          {/* Card de Contratos */}
           <Grid item xs={12} md={4}>
             <Card sx={{ height: '100%', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-              <CardHeader title="Empresas" />
+              <CardHeader title="Contratos" />
               <Divider />
               <CardContent>
                 {companies.length === 0 ? (
@@ -306,7 +306,7 @@ const DashboardWithMenu: React.FC = () => {
               <Divider />
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>Total de Empresas:</Typography>
+                  <Typography>Total de Contratos:</Typography>
                   <Typography fontWeight="bold">{stats.totalCompanies}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>

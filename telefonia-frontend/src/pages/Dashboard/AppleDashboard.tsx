@@ -410,7 +410,7 @@ const AppleDashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={3}>
               <StatCard
                 icon={<BusinessIcon />}
-                title="Empresas"
+                title="Contratos"
                 value={stats.totalCompanies}
                 change={0}
                 color={COLORS.CLARO}

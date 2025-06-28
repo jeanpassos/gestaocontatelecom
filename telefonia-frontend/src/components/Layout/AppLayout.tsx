@@ -69,7 +69,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const navigationItems = [
     { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-    { text: 'Empresas', path: '/companies', icon: <BusinessIcon /> },
+    { text: 'Contratos', path: '/companies', icon: <BusinessIcon /> },
     { text: 'Faturas', path: '/invoices', icon: <ReceiptIcon /> },
     { text: 'Usuários', path: '/users', icon: <PeopleIcon /> },
     { text: 'Configurações', path: '/settings', icon: <SettingsIcon /> },

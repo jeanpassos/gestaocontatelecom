@@ -58,6 +58,7 @@ import {
 } from '@mui/icons-material';
 import AppleLayout from '../../components/Layout/AppleLayout';
 import { useAuth } from '../../context/AuthContext';
+import { hasPermission, UserRole } from '../../config/permissions';
 import CompanyService, { Company, CompanyFilter } from '../../services/company.service';
 import UserService, { User } from '../../services/user.service';
 import SegmentService, { Segment } from '../../services/segment.service';
@@ -2459,8 +2460,17 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, company }) => 
   );
 };
 
-// Página Principal de Empresas
+// Página Principal de Contratos
 const CompaniesPage: React.FC = () => {
+  const { user } = useAuth();
+  const userRole = user?.role as UserRole;
+  
+  // Verificações de permissões
+  const canCreateCompany = hasPermission(userRole, 'companies.create');
+  const canEditCompany = hasPermission(userRole, 'companies.edit');
+  const canDeleteCompany = hasPermission(userRole, 'companies.delete');
+  const canViewCompany = hasPermission(userRole, 'companies.view');
+  
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -2484,7 +2494,6 @@ const CompaniesPage: React.FC = () => {
     company?: Company;
   }>({ open: false });
 
-  const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
   // Hook para atualizar o tempo a cada minuto
@@ -2573,7 +2582,7 @@ const CompaniesPage: React.FC = () => {
     <AppleLayout>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-          Empresas
+          Contratos
         </Typography>
         
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -2589,22 +2598,24 @@ const CompaniesPage: React.FC = () => {
             Atualizar
           </Button>
           
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCompanyModal({ open: true })}
-            sx={{
-              borderRadius: '10px',
-              fontWeight: 600,
-              px: 3,
-              boxShadow: '0 4px 10px rgba(0, 122, 255, 0.3)',
-              '&:hover': {
-                boxShadow: '0 6px 15px rgba(0, 122, 255, 0.4)',
-              }
-            }}
-          >
-            Nova Empresa
-          </Button>
+          {canCreateCompany && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCompanyModal({ open: true })}
+              sx={{
+                borderRadius: '10px',
+                fontWeight: 600,
+                px: 3,
+                boxShadow: '0 4px 10px rgba(0, 122, 255, 0.3)',
+                '&:hover': {
+                  boxShadow: '0 6px 15px rgba(0, 122, 255, 0.4)',
+                }
+              }}
+            >
+              Nova Empresa
+            </Button>
+          )}
         </Box>
       </Box>
       
@@ -3016,48 +3027,54 @@ const CompaniesPage: React.FC = () => {
                     </TableCell>
                     
                     <TableCell align="right">
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                        {/* Azul para Visualizar - representa visibilidade, informação */}
-                        <Tooltip title="Visualizar">
-                          <IconButton 
-                            size="small"
-                            sx={{ 
-                              backgroundColor: 'rgba(25, 118, 210, 0.08)', 
-                              '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.12)' } 
-                            }}
-                            onClick={() => setDetailModal({ open: true, company })}
-                          >
-                            <VisibilityIcon fontSize="small" sx={{ color: '#1976D2' }} />
-                          </IconButton>
-                        </Tooltip>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                        {/* Azul para Visualizar - representa informação, neutralidade */}
+                        {canViewCompany && (
+                          <Tooltip title="Visualizar">
+                            <IconButton 
+                              size="small"
+                              sx={{ 
+                                backgroundColor: 'rgba(25, 118, 210, 0.08)', 
+                                '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.12)' } 
+                              }}
+                              onClick={() => setDetailModal({ open: true, company })}
+                            >
+                              <VisibilityIcon fontSize="small" sx={{ color: '#1976D2' }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         
                         {/* Laranja para Editar - representa modificação, atenção */}
-                        <Tooltip title="Editar">
-                          <IconButton 
-                            size="small"
-                            sx={{ 
-                              backgroundColor: 'rgba(237, 108, 2, 0.08)', 
-                              '&:hover': { backgroundColor: 'rgba(237, 108, 2, 0.12)' } 
-                            }}
-                            onClick={() => setCompanyModal({ open: true, company })}
-                          >
-                            <EditIcon fontSize="small" sx={{ color: '#ED6C02' }} />
-                          </IconButton>
-                        </Tooltip>
+                        {canEditCompany && (
+                          <Tooltip title="Editar">
+                            <IconButton 
+                              size="small"
+                              sx={{ 
+                                backgroundColor: 'rgba(237, 108, 2, 0.08)', 
+                                '&:hover': { backgroundColor: 'rgba(237, 108, 2, 0.12)' } 
+                              }}
+                              onClick={() => setCompanyModal({ open: true, company })}
+                            >
+                              <EditIcon fontSize="small" sx={{ color: '#ED6C02' }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         
                         {/* Vermelho para Excluir - representa perigo, exclusão */}
-                        <Tooltip title="Excluir">
-                          <IconButton 
-                            size="small"
-                            sx={{ 
-                              backgroundColor: 'rgba(211, 47, 47, 0.08)', 
-                              '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.12)' } 
-                            }}
-                            onClick={() => setDeleteModal({ open: true, company })}
-                          >
-                            <DeleteIcon fontSize="small" sx={{ color: '#D32F2F' }} />
-                          </IconButton>
-                        </Tooltip>
+                        {canDeleteCompany && (
+                          <Tooltip title="Excluir">
+                            <IconButton 
+                              size="small"
+                              sx={{ 
+                                backgroundColor: 'rgba(211, 47, 47, 0.08)', 
+                                '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.12)' } 
+                              }}
+                              onClick={() => setDeleteModal({ open: true, company })}
+                            >
+                              <DeleteIcon fontSize="small" sx={{ color: '#D32F2F' }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>

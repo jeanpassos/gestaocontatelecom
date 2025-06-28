@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   List,
@@ -26,6 +26,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { UserRole } from '../../config/permissions';
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface SideMenuProps {
   mobileOpen: boolean;
@@ -45,35 +47,75 @@ const SideMenu: React.FC<SideMenuProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const { checkPermission, forceUpdateValue } = usePermissions();
+  // Estado para forçar rerender quando permissões forem atualizadas
+  const [permissionsVersion, setPermissionsVersion] = useState(0);
+  
+  // Escutar eventos de atualização de permissões
+  useEffect(() => {
+    const handlePermissionsUpdated = () => {
+      console.log('SideMenu: Permissões atualizadas, forçando rerender do menu');
+      // Forçar re-render do componente
+      setPermissionsVersion(prev => prev + 1);
+    };
+    
+    // Adicionar listener para o evento de atualização de permissões
+    window.addEventListener('permissionsUpdated', handlePermissionsUpdated);
+    
+    // Limpar o listener quando o componente for desmontado
+    return () => {
+      window.removeEventListener('permissionsUpdated', handlePermissionsUpdated);
+    };
+  }, []);
 
   // Definir a cor principal como verde
   const primaryGreen = '#008069';
   const darkGreen = '#006e58';
 
-  // Filtrar itens de menu com base no papel do usuário
+  // Filtrar itens de menu com base nas permissões dinâmicas do usuário
+  // O permissionsVersion garante que essa função seja reavaliada quando as permissões forem atualizadas
   const getMenuItems = () => {
-    const baseItems = [
-      { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' },
-      { icon: <BusinessIcon />, label: 'Empresas', path: '/companies' },
-      { icon: <ReceiptIcon />, label: 'Faturas', path: '/invoices' },
-    ];
+    // Usar permissionsVersion aqui apenas para forçar a reavaliação quando as permissões mudarem
+    // eslint-disable-next-line no-unused-vars
+    const forceRerender = permissionsVersion;
+    const userRole = user?.role as UserRole;
+    const menuItems = [];
     
-    // Adicionar relatórios apenas para admin e gerente
-    if (user?.role === 'admin' || user?.role === 'manager') {
-      baseItems.push({ icon: <ReportIcon />, label: 'Relatórios', path: '/reports' });
+    // Dashboard - sempre visível para usuários logados
+    const canViewDashboard = checkPermission('dashboard.view');
+    if (canViewDashboard) {
+      menuItems.push({ icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' });
     }
     
-    // Adicionar consultor para todos os perfis (exceto consultor)
-    if (user?.role !== 'consultant') {
-      baseItems.push({ icon: <PeopleIcon />, label: 'Consultor', path: '/consultant-dashboard' });
+    // Contratos - verificar permissão companies.view
+    const canViewCompanies = checkPermission('companies.view');
+    if (canViewCompanies) {
+      menuItems.push({ icon: <BusinessIcon />, label: 'Contratos', path: '/companies' });
     }
     
-    // Adicionar configurações apenas para administradores
-    if (user?.role === 'admin') {
-      baseItems.push({ icon: <SettingsIcon />, label: 'Configurações', path: '/admin?tab=2' });
+    // Faturas - verificar permissão invoices.view
+    const canViewInvoices = checkPermission('invoices.view');
+    if (canViewInvoices) {
+      menuItems.push({ icon: <ReceiptIcon />, label: 'Faturas', path: '/invoices' });
     }
     
-    return baseItems;
+    // Relatórios - verificar permissão reports.view
+    const canViewReports = checkPermission('reports.view');
+    if (canViewReports) {
+      menuItems.push({ icon: <ReportIcon />, label: 'Relatórios', path: '/reports' });
+    }
+    
+    // Consultor Dashboard - verificar permissão consultant.dashboard
+    if (checkPermission('consultant.dashboard')) {
+      menuItems.push({ icon: <PeopleIcon />, label: 'Consultor', path: '/consultant-dashboard' });
+    }
+    
+    // Configurações/Admin - verificar permissão admin.view
+    if (checkPermission('admin.view')) {
+      menuItems.push({ icon: <SettingsIcon />, label: 'Configurações', path: '/admin?tab=2' });
+    }
+    
+    return menuItems;
   };
   
   // Menu items

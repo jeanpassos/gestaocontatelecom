@@ -265,7 +265,7 @@ const DashboardPage: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <StatCard
             icon={<BusinessIcon />}
-            title="Empresas"
+            title="Contratos"
             value={dashboardData.companies}
             delta={0}
             color="info"

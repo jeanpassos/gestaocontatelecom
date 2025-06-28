@@ -57,8 +57,14 @@ export const AuthService = {
   },
   
   logout(): void {
+    // Limpar dados de autenticação
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // Limpar permissões para forçar uma nova sincronização no próximo login
+    localStorage.removeItem('telefonia_permission_matrix');
+    
+    console.log('Logout completo: dados de autenticação e permissões removidos');
   },
   
   getCurrentUser(): User | null {

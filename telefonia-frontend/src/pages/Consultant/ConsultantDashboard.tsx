@@ -409,8 +409,7 @@ const ConsultantDashboard: React.FC = () => {
 
   return (
     <AppleLayout>
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Typography variant="h4" sx={{ fontWeight: 600 }}>
             Painel do Consultor
           </Typography>
@@ -498,7 +497,7 @@ const ConsultantDashboard: React.FC = () => {
         </Grid>
       </Grid>
       
-      {/* Tabela de Empresas */}
+      {/* Tabela de Contratos */}
       <Paper sx={{ mb: 3 }}>
         <TableContainer>
           <Table>
@@ -879,7 +878,6 @@ const ConsultantDashboard: React.FC = () => {
           </>
         )}
       </Dialog>
-      </Box>
     </AppleLayout>
   );
 };

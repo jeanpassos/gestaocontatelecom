@@ -834,7 +834,7 @@ const ReportsPage = () => {
               </TabPanel>
               <TabPanel value={tabValue} index={2}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-                  Comparativo entre Empresas
+                  Comparativo entre Contratos
                 </Typography>
                 {renderComparisonChart()}
               </TabPanel>

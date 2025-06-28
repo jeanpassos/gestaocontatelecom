@@ -4,6 +4,37 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ---
 
+## [0.80.0] - 2025-06-28
+
+### 🔐 **Melhorias no Sistema de Permissões**
+
+#### 🔄 **Sincronização Automática de Permissões**
+- **hasPermission**: Correção na função para aceitar valores numéricos (1/0) e booleanos
+- **Logs de depuração**: Adicionados logs detalhados para mostrar tipo e valor de permissões
+- **Conversão de tipos**: Implementada conversão explícita para boolean em todas as verificações
+
+#### 🔧 **Redirecionamento Inteligente por Perfil**
+- **Fallback Dinâmico**: Implementado sistema para redirecionar usuários para páginas permitidas
+- **Dashboards por Perfil**: Configuração diferenciada de páginas iniciais por tipo de usuário
+- **Priorização de Rotas**: Sequenciamento inteligente de páginas alternativas por perfil
+
+#### 👉 **Fluxo de Navegação Aprimorado**
+- **Eliminação de Loop Infinito**: Corrigida condição que causava recargas constantes
+- **Acesso Garantido**: Clientes sem permissão de dashboard agora acessam Contratos/Faturas
+- **Botões de Ação**: Correção na visibilidade dos botões para administradores
+
+### 🛠️ **Correções Técnicas**
+
+#### 💾 **Backend & Frontend**
+- **Verificação de Permissões**: Sistema flexibilizado para evitar bloqueios indevidos
+- **Roteamento Protegido**: Componente ProtectedRoute atualizado com fallback inteligente
+- **Visibilidade Condicional**: Correção em verificações de permissão para exibir/ocultar componentes
+
+### 👨‍💻 **Melhorias na Experiência do Usuário**
+- **Acesso Sem Bloqueios**: Clientes não ficam mais presos em páginas de acesso negado
+- **Navegação Otimizada**: Redirecionamento automático para páginas permitidas
+- **Feedback Consistente**: Mensagens de erro aprimoradas quando falta permissão
+
 ## [0.79.0] - 2025-06-23
 
 ### ✨ Novas Funcionalidades

@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { SegmentsModule } from './segments/segments.module';
 import { ProvidersModule } from './providers/providers.module'; // Import ProvidersModule
 import { ContractsModule } from './contracts/contracts.module'; // Import ContractsModule
+import { PermissionsModule } from './permissions/permissions.module'; // Import PermissionsModule
 import { typeOrmConfig } from './config/typeorm.config';
 
 @Module({
@@ -28,6 +29,7 @@ import { typeOrmConfig } from './config/typeorm.config';
     SegmentsModule,
     ProvidersModule, // Add ProvidersModule here
     ContractsModule, // Add ContractsModule here
+    PermissionsModule, // Add PermissionsModule here
   ],
   controllers: [AppController],
   providers: [AppService],

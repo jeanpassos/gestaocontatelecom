@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AppleLayout from '../../components/Layout/AppleLayout';
 import {
   Box,
   Typography,
@@ -320,7 +321,7 @@ const ConsultantPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <AppleLayout>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 600 }}>
         Área do Consultor
       </Typography>
@@ -660,7 +661,7 @@ const ConsultantPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </AppleLayout>
   );
 };
 

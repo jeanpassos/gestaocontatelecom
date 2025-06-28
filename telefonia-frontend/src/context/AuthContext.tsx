@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AuthService from '../services/auth.service';
+import { permissionsService } from '../services/permissions.service';
+import { UserRole } from '../config/permissions';
 
 interface User {
   id: string;
@@ -44,6 +46,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('[AuthContext] Profile fetched successfully:', profileUser);
           setUser(profileUser);
           localStorage.setItem('user', JSON.stringify(profileUser)); // Atualiza user no localStorage
+          
+          // Iniciar verificação periódica de permissões
+          permissionsService.startPeriodicCheck();
+          
+          // Carregar permissões durante auto-login
+          if (profileUser?.role) {
+            console.log('[AuthContext] Carregando permissões para auto-login:', profileUser.role);
+            try {
+              await permissionsService.ensurePermissionsLoaded(profileUser.role as UserRole);
+              console.log('[AuthContext] Permissões carregadas durante auto-login');
+            } catch (permError) {
+              console.error('[AuthContext] Erro ao carregar permissões durante auto-login:', permError);
+              // Não bloqueia o login se houver erro nas permissões
+            }
+          }
         } catch (error: any) {
           console.error('[AuthContext] Error during getProfile:', error.response?.data || error.message, error);
           // O interceptor de resposta do api.ts já deve lidar com 401 (limpar localStorage e redirecionar)
@@ -68,6 +85,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       const response = await AuthService.login({ email, password });
       setUser(response.user);
+      
+      // Iniciar verificação periódica após login bem-sucedido
+      permissionsService.startPeriodicCheck();
+      
+      // Pré-carregar permissões assim que o usuário fizer login
+      if (response.user?.role) {
+        console.log('[AuthContext] Pré-carregando permissões para:', response.user.role);
+        try {
+          await permissionsService.ensurePermissionsLoaded(response.user.role as UserRole);
+          console.log('[AuthContext] Permissões pré-carregadas com sucesso');
+        } catch (permError) {
+          console.error('[AuthContext] Erro ao pré-carregar permissões:', permError);
+          // Não bloqueia o login se houver erro nas permissões
+        }
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao fazer login');
     } finally {
@@ -76,6 +108,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    // Parar a verificação periódica de permissões
+    permissionsService.stopPeriodicCheck();
+    
+    // Limpar dados de autenticação
     AuthService.logout();
     setUser(null);
   };

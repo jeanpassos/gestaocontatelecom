@@ -779,9 +779,9 @@ const SettingsTab: React.FC = () => {
         </SettingField>
       </SettingSection>
       
-      {/* Seção de Segmentos de Empresas */}
+      {/* Seção de Segmentos de Contratos */}
       <SettingSection
-        title="Segmentos de Empresas"
+        title="Segmentos de Contratos"
         description="Gerencie os segmentos disponíveis para classificar as empresas."
         icon={<CategoryIcon />}
       >

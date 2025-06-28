@@ -1,7 +1,7 @@
 # Sistema de Gestão de Contas de Telefonia
-**Versão 0.79.0** | Sistema para controle e gerenciamento de contas telefônicas empresariais
+**Versão 0.80.0** | Sistema para controle e gerenciamento de contas telefônicas empresariais
 
-![Versão](https://img.shields.io/badge/Versão-0.79.0-blue)
+![Versão](https://img.shields.io/badge/Versão-0.80.0-blue)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB)
 ![Backend](https://img.shields.io/badge/Backend-NestJS%20%2B%20TypeORM-E0234E)
@@ -34,6 +34,44 @@ Sistema completo para gerenciamento de contas de telefonia empresarial, permitin
 │  Porta: 3000        │    │    Porta: 3001      │    │    Porta: 5000     │
 └─────────────────────┘    └─────────────────────┘    └─────────────────────┘
 ```
+
+---
+
+## Backlog de Tarefas (Próximas Versões)
+
+### Prioridade Alta 🔥
+
+1. **Sistema de Permissões**
+   - Investigar e corrigir checagem de permissões no SideMenu para todos os perfis
+   - Corrigir erro 403 Forbidden no endpoint `/permissions/last-updated` para clientes
+   - Garantir que botões de ação (editar, excluir, etc.) apareçam corretamente para administradores
+
+2. **Dashboard por Perfil**
+   - Criar dashboards específicos para cada tipo de usuário
+   - Implementar métricas relevantes para cada perfil (admin, supervisor, consultor, cliente)
+   - Adicionar permissões específicas para cada tipo de dashboard
+
+3. **Otimização de Rotas**
+   - Revisar todos os componentes protegidos (ProtectedRoute) para garantir redirecionamentos corretos
+   - Eliminar qualquer loop infinito restante no sistema de permissões
+   - Implementar tratamento de erros mais detalhado nas rotas protegidas
+
+### Prioridade Média 🔔
+
+1. **Sincronização de Dados**
+   - Implementar mecanismo de sincronização em tempo real para atualizações de permissões
+   - Otimizar polling para reduzir requisições ao servidor
+   - Criar sistema de notificação para alterações críticas de permissões
+
+2. **Performance**
+   - Otimizar carregamento de permissões no login
+   - Melhorar tempo de resposta nas verificações de permissões
+   - Implementar cache de dados mais eficiente
+
+3. **Interface de Usuário**
+   - Melhorar feedback visual para permissões negadas
+   - Implementar tooltips explicativos para botões e ações bloqueadas
+   - Revisar e padronizar cores e ícones por toda a aplicação
 
 ---
 
@@ -569,4 +607,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-Sistema em constante evolução - Versão 0.79.0 | Junho 2025
+Sistema em constante evolução - Versão 0.80.0 | Junho 2025

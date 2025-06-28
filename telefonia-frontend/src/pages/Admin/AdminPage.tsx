@@ -19,7 +19,8 @@ import {
   Home as HomeIcon,
   AdminPanelSettings as AdminIcon,
   Api as ApiIcon,
-  Business as BusinessIcon // Ícone para Operadoras
+  Business as BusinessIcon, // Ícone para Operadoras
+  Security as SecurityIcon // Ícone para Permissões
 } from '@mui/icons-material';
 import AppleLayout from '../../components/Layout/AppleLayout';
 import { useAuth } from '../../context/AuthContext';
@@ -27,7 +28,8 @@ import UsersTab from './UsersTab';
 import RolesTab from './RolesTab';
 import SettingsTab from './SettingsTab';
 import IntegrationsTab from './IntegrationsTab';
-import ProvidersTab from './ProvidersTab'; // Importar a nova tab
+import ProvidersTab from './ProvidersTab';
+import PermissionsMatrix from '../../components/Admin/PermissionsMatrix';
 
 // Interface para controle de tabs
 interface TabPanelProps {
@@ -130,7 +132,7 @@ const AdminPage: React.FC = () => {
 
   return (
     <AppleLayout>
-      <Container maxWidth="xl">
+      <Box sx={{ px: { xs: 1, sm: 2, md: 3 }, py: 0 }}>
         {/* Breadcrumbs */}
         <Breadcrumbs sx={{ mb: 3 }}>
           <Link color="inherit" href="/" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -201,10 +203,22 @@ const AdminPage: React.FC = () => {
               }}
             />
             <Tab
+              icon={<SecurityIcon />}
+              iconPosition="start"
+              label="Permissões"
+              {...a11yProps(2)}
+              sx={{
+                fontWeight: 600,
+                textTransform: 'none',
+                minHeight: '64px',
+                fontSize: '1rem'
+              }}
+            />
+            <Tab
               icon={<SettingsIcon />}
               iconPosition="start"
               label="Configurações"
-              {...a11yProps(2)}
+              {...a11yProps(3)}
               sx={{
                 fontWeight: 600,
                 textTransform: 'none',
@@ -216,7 +230,7 @@ const AdminPage: React.FC = () => {
               icon={<ApiIcon />}
               iconPosition="start"
               label="Integrações"
-              {...a11yProps(3)}
+              {...a11yProps(4)}
               sx={{
                 fontWeight: 600,
                 textTransform: 'none',
@@ -228,7 +242,7 @@ const AdminPage: React.FC = () => {
               icon={<BusinessIcon />}
               iconPosition="start"
               label="Operadoras"
-              {...a11yProps(4)}
+              {...a11yProps(5)}
               sx={{
                 fontWeight: 600,
                 textTransform: 'none',
@@ -247,17 +261,20 @@ const AdminPage: React.FC = () => {
               <RolesTab />
             </TabPanel>
             <TabPanel value={activeTab} index={2}>
-              <SettingsTab />
+              <PermissionsMatrix />
             </TabPanel>
             <TabPanel value={activeTab} index={3}>
-              <IntegrationsTab />
+              <SettingsTab />
             </TabPanel>
             <TabPanel value={activeTab} index={4}>
+              <IntegrationsTab />
+            </TabPanel>
+            <TabPanel value={activeTab} index={5}>
               <ProvidersTab />
             </TabPanel>
           </Box>
         </Paper>
-      </Container>
+      </Box>
     </AppleLayout>
   );
 };

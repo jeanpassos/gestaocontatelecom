@@ -266,7 +266,7 @@ const SegmentsSection: React.FC = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          Segmentos de Empresas
+          Segmentos de Contratos
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button

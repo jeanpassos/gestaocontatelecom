@@ -39,6 +39,8 @@ Sistema completo para gerenciamento de contas de telefonia empresarial, permitin
 
 ## Backlog de Tarefas (Próximas Versões)
 
+> **Para ver o backlog completo e detalhado, consulte o arquivo [BACKLOG.md](BACKLOG.md)**
+
 ### Prioridade Alta 🔥
 
 1. **Sistema de Permissões**

@@ -4,6 +4,26 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ---
 
+## [0.81.0] - 2025-06-30
+
+### 👤 **Melhorias no Perfil de Usuário**
+
+#### 📷 **Upload de Imagem de Perfil**
+- **Endpoint Backend**: Implementação do endpoint `/users/upload-avatar` utilizando Multer
+- **Armazenamento de Arquivos**: Configuração do sistema de armazenamento de imagens no servidor
+- **Atualização Automática**: Avatar atualizado em tempo real no menu lateral após upload
+
+#### 🔧 **Correções Técnicas**
+- **Problemas de Tipagem**: Corrigido erro TypeScript relacionado ao acesso ao ID do usuário no request
+- **Interface PersonalPrompt**: Implementada interface RequestWithUser para melhorar tipagem
+- **Prevenção de Cache**: Adicionado controle de versão para evitar exibição de avatar desatualizado
+
+### 👨‍💻 **Melhorias na Experiência do Usuário**
+- **Feedback Visual**: Avatar atualizado instantaneamente após o upload sem necessidade de recarregar a página
+- **Menu Lateral Responsivo**: Componente SideMenu otimizado para atualização em tempo real
+- **Personalização do Perfil**: Melhor experiência ao editar informações de usuário
+
+
 ## [0.80.0] - 2025-06-28
 
 ### 🔐 **Melhorias no Sistema de Permissões**

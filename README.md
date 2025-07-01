@@ -1,7 +1,7 @@
 # Sistema de Gestão de Contas de Telefonia
-**Versão 0.80.0** | Sistema para controle e gerenciamento de contas telefônicas empresariais
+**Versão 0.81.0** | Sistema para controle e gerenciamento de contas telefônicas empresariais
 
-![Versão](https://img.shields.io/badge/Versão-0.80.0-blue)
+![Versão](https://img.shields.io/badge/Versão-0.81.0-blue)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB)
 ![Backend](https://img.shields.io/badge/Backend-NestJS%20%2B%20TypeORM-E0234E)

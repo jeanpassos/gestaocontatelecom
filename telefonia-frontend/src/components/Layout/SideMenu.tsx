@@ -50,6 +50,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
   const { checkPermission, forceUpdateValue } = usePermissions();
   // Estado para forçar rerender quando permissões forem atualizadas
   const [permissionsVersion, setPermissionsVersion] = useState(0);
+  // Estado para rastrear o avatar do usuário e forçar re-render quando for alterado
+  const [avatarVersion, setAvatarVersion] = useState(0);
   
   // Escutar eventos de atualização de permissões
   useEffect(() => {
@@ -67,6 +69,14 @@ const SideMenu: React.FC<SideMenuProps> = ({
       window.removeEventListener('permissionsUpdated', handlePermissionsUpdated);
     };
   }, []);
+  
+  // Monitorar mudanças no avatar do usuário
+  useEffect(() => {
+    if (user?.avatarUrl) {
+      console.log('SideMenu: Avatar do usuário atualizado:', user.avatarUrl);
+      setAvatarVersion(prev => prev + 1);
+    }
+  }, [user?.avatarUrl]);
 
   // Definir a cor principal como verde
   const primaryGreen = '#008069';
@@ -252,7 +262,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <Tooltip title={`${user?.email || 'Usuário'} - Clique para editar perfil`} placement="right">
             <Avatar 
               sx={{ width: 32, height: 32 }}
-              src={user?.avatarUrl || "https://randomuser.me/api/portraits/men/32.jpg"}
+              src={user?.avatarUrl ? `${user.avatarUrl}?v=${avatarVersion}` : "https://randomuser.me/api/portraits/men/32.jpg"}
             >
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </Avatar>
@@ -261,7 +271,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <>
             <Avatar 
               sx={{ width: 40, height: 40 }}
-              src={user?.avatarUrl || "https://randomuser.me/api/portraits/men/32.jpg"}
+              src={user?.avatarUrl ? `${user.avatarUrl}?v=${avatarVersion}` : "https://randomuser.me/api/portraits/men/32.jpg"}
             >
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </Avatar>

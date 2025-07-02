@@ -1,0 +1,137 @@
+/* Estilos para o Robo Manager */
+
+/* Estilo geral */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Navegação */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Páginas de conteúdo */
+.page-content {
+    display: none;
+}
+
+.page-content.active {
+    display: block;
+}
+
+/* Lista de ações */
+.actions-list {
+    min-height: 200px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.action-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.action-item:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.action-header {
+    margin-bottom: 0.5rem;
+}
+
+.action-type {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.action-content {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.action-param {
+    margin: 0;
+    display: flex;
+}
+
+.param-name {
+    font-weight: 500;
+    width: 100px;
+}
+
+/* Visualização de browser */
+.browser-preview {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+#browser-iframe {
+    border: none;
+}
+
+/* Lista de elementos selecionados */
+.selected-elements {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+.element-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.selector-text {
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 0.2rem;
+    border-radius: 0.2rem;
+    word-break: break-all;
+}
+
+/* Galeria de screenshots */
+.screenshot-card {
+    margin-bottom: 1.5rem;
+}
+
+.screenshot-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+/* Drag-and-drop */
+.drag-handle {
+    cursor: move;
+    color: #aaa;
+}
+
+.action-item.dragging {
+    opacity: 0.5;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .actions-list {
+        min-height: 150px;
+    }
+}
